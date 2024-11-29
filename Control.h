@@ -11,8 +11,12 @@
 #define CONTROL_H
 using namespace std;
 namespace HlGui {
+
     /// The root of the GUI hierarchy. Provides methods for styling, click functions, etc.
 class Control {
+private:
+    /// Internal function for justifying position without anchors.
+    void     PlaceSelf();
 protected:
     string _debug_string = "Control";
 
@@ -45,6 +49,8 @@ protected:
 
     virtual void Draw();
     virtual void Update(float gameTime);
+    void     PlaceChild(Control* child) const;
+    void     RecalculateChildrenRecursive();
 public:
     virtual  ~Control();
     /*ctor*/ Control(short w, short h, hl_AnchorType anchor);
@@ -71,7 +77,6 @@ public:
     Control* SetClickAction(void (*func)(hl_ClickEventArgs));
 
     string   GetDebugString();
-    void     PlaceChild(Control* child);
 };
 }
 

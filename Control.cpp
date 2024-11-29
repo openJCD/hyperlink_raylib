@@ -7,8 +7,6 @@
 #include <iostream>
 #include <ostream>
 #include <ranges>
-
-#define LOG(msg) std::cout << "[GUI INFO]:" << msg <<  std::endl
 #define LOG_WARN(msg) std::cout << msg << std::endl
 #define BEGIN_SCISSOR_RECT(rectangle) (BeginScissorMode(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
 #define END_SCISSOR_RECT() EndScissorMode()
@@ -21,11 +19,13 @@ Control::Control(short w, short h, const hl_AnchorType anchor = ANCHOR_TOP_LEFT)
     m_Bounds = Rectangle(0,0,w,h);
     m_StyleProperties = hl_StyleProperties(); // default styles
     _debug_string = "Control_" + to_string(anchor) + "_" + to_string(w) + "_" + to_string(h);
+    PlaceSelf();
 }
 Control::Control(hl_AnchorType anchor) {
     m_Anchor = anchor;
     m_StyleProperties = hl_StyleProperties(); // default styles
     _debug_string = "Control_" + to_string(anchor) + "_autoSized";
+    PlaceSelf();
 }
 Control* Control::SetAnchor(hl_AnchorType anchor) {
     m_Anchor = anchor;
@@ -43,9 +43,15 @@ void Control :: UpdatePos() {
     if (m_Parent != nullptr) {
         m_Bounds.x = m_Parent->m_Bounds.x + m_LocalPosition.x;
         m_Bounds.y = m_Parent->m_Bounds.y + m_LocalPosition.y;
+    } else {
+        m_Bounds.x = m_LocalPosition.x;
+        m_Bounds.y = m_LocalPosition.y;
     }
     m_DragBounds.x += m_Bounds.x;
     m_DragBounds.y += m_Bounds.y;
+    if (IsWindowResized() && m_Parent == nullptr) { // check this frame if window was resized. if it was, update the anchors of every element.
+        RecalculateChildrenRecursive();
+    }
 }
 void Control :: BaseDraw() {
     Draw();
@@ -59,7 +65,12 @@ void Control::BaseUpdate(float gameTime) {
 
     UpdatePos();
     if (IsDragged) {
-        m_LocalPosition.x += GetMouseDelta().x;
+        if (m_Parent != nullptr) {
+            if (m_LocalPosition.x + GetMouseDelta().x > m_Parent->m_Bounds.x
+                or m_LocalPosition.x < (m_Parent->m_Bounds.width-m_Bounds.width)) {
+                m_LocalPosition.x += GetMouseDelta().x;
+            }
+        }
         m_LocalPosition.y += GetMouseDelta().y;
     }
     if (m_Parent == nullptr) CheckMouse(GetMousePosition()); // only recursively check mouse hovers if I am the root control.
@@ -84,7 +95,7 @@ void Control::BaseUpdate(float gameTime) {
         }
     }
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-        IsHovered=false; //reset hover if the mouse is released at all.
+        IsDragged=false; //reset drag if the mouse is released at all.
     }
     Update(gameTime);
     for (auto element: m_Children) {
@@ -178,9 +189,7 @@ Control * Control::SetColor(Color color) {
 
 Control *Control::SetHeight(float height) {
     m_Bounds.height = height;
-    for (auto control: m_Children) {
-        PlaceChild(control); // update anchors
-    }
+    RecalculateChildrenRecursive();
     return this;
 }
 
@@ -192,9 +201,7 @@ Control * Control::SetSize(float w, float h) {
 
 Control *Control::SetWidth(float width) {
     m_Bounds.width = width;
-    for (auto control: m_Children) {
-        PlaceChild(control); // update anchors
-    }
+    RecalculateChildrenRecursive();
     return this;
 }
 Control *Control::SetPadding(short horizontal, short vertical) {
@@ -226,8 +233,17 @@ string Control::GetDebugString() {
 }
 
 //end chain properties
+void Control::RecalculateChildrenRecursive() {
+    if (m_Parent == nullptr) {
+        PlaceSelf();
+    }
+    for (auto control: m_Children ) {
+        PlaceChild(control);
+        control->RecalculateChildrenRecursive();
+    }
+}
 
-void Control::PlaceChild(Control *child) {
+void Control::PlaceChild(Control *child) const {
     float child_w = child->m_Bounds.width;
     float child_h = child->m_Bounds.height;
     LOG("Calculating anchors of "+child->_debug_string);
@@ -238,7 +254,6 @@ void Control::PlaceChild(Control *child) {
             break;
         case ANCHOR_TOP_RIGHT:
             child->m_LocalPosition.x = m_Bounds.width-child->m_StyleProperties.padding.x - child_w;
-            child->m_LocalPosition.y = child->m_StyleProperties.padding.y;
         break;
         case ANCHOR_BOTTOM_LEFT:
             child->m_LocalPosition.x = child->m_StyleProperties.padding.x;
@@ -269,6 +284,54 @@ void Control::PlaceChild(Control *child) {
             child->m_LocalPosition.y = m_Bounds.height / 2 - child_h / 2;
             break;
         default:
-            break;
+            break;           child->m_LocalPosition.y = child->m_StyleProperties.padding.y;
+
     }
+}
+void Control::PlaceSelf() {
+    auto  window_bounds = Rectangle{ 0, 0, static_cast<float>(GetRenderWidth()), static_cast<float>(GetRenderHeight())};
+    float my_w = m_Bounds.width;
+    float my_h = m_Bounds.height;
+    switch (m_Anchor) {
+        case ANCHOR_TOP_LEFT:
+            m_LocalPosition.x = m_StyleProperties.padding.x;
+            m_LocalPosition.y = m_StyleProperties.padding.y;
+            break;
+        case ANCHOR_TOP_RIGHT:
+            m_LocalPosition.x = window_bounds.width-m_StyleProperties.padding.x - my_w;
+            m_LocalPosition.y = m_StyleProperties.padding.y;
+            break;
+        case ANCHOR_BOTTOM_LEFT:
+            m_LocalPosition.x = m_StyleProperties.padding.x;
+            m_LocalPosition.y = window_bounds.height - m_StyleProperties.padding.y - my_h;
+            break;
+        case ANCHOR_BOTTOM_RIGHT:
+            m_LocalPosition.x = window_bounds.width - m_StyleProperties.padding.x - my_w;
+            m_LocalPosition.y = window_bounds.height - m_StyleProperties.padding.y - my_h;
+            break;
+        case ANCHOR_LEFT:
+            m_LocalPosition.x = m_StyleProperties.padding.x;
+            m_LocalPosition.y = window_bounds.height / 2 - my_h / 2;
+            break;
+        case ANCHOR_RIGHT:
+            m_LocalPosition.x = window_bounds.width - m_StyleProperties.padding.x - my_w;
+            m_LocalPosition.y = window_bounds.height / 2 - my_h / 2;
+            break;
+        case ANCHOR_TOP:
+            m_LocalPosition.x = window_bounds.width / 2 - my_w / 2;
+            m_LocalPosition.y = m_StyleProperties.padding.y;
+            break;
+        case ANCHOR_BOTTOM:
+            m_LocalPosition.x = window_bounds.width / 2 - my_w / 2;
+            m_LocalPosition.y = window_bounds.height - m_StyleProperties.padding.y - my_h;
+            break;
+        case ANCHOR_CENTER:
+            m_LocalPosition.x = window_bounds.width / 2 - my_w / 2;
+            m_LocalPosition.y = window_bounds.height / 2 - my_h / 2;
+            break;
+        default:
+            break;           
+
+    }
+
 }
