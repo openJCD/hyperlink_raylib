@@ -18,6 +18,9 @@ protected:
     Font m_font = GetFontDefault();
 public:
     TextLabel(Font &font, const char* text, hl_AnchorType anchor);
+
+    TextLabel(const char *text, hl_AnchorType anchor);
+
     ~TextLabel() override;
     void Update(float gameTime) override;
     TextLabel *SetText(const char* text);

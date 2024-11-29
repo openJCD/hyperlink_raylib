@@ -21,6 +21,14 @@ namespace HlGui {
         m_Bounds = Rectangle(0,0,(MeasureTextEx(m_font, text, m_fntSize, 1).x+m_StyleProperties.margin.x*2), m_fntSize+m_StyleProperties.margin.y*2);
         m_font = font;
     }
+    TextLabel::TextLabel(const char* text, hl_AnchorType anchor): Control(anchor) {
+        m_text = text;
+        _debug_string = "TextLabel_'" + string(text) + "'";
+        m_StyleProperties = STYLE_DEFAULT;
+        m_Bounds = Rectangle(0, 0, MeasureText(text, m_fntSize) + m_StyleProperties.margin.x * 2,
+                             m_fntSize + m_StyleProperties.margin.y * 2);
+        m_font = GetFontDefault();
+    }
     TextLabel::~TextLabel() {
         m_text.clear();
     }

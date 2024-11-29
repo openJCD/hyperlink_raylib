@@ -55,11 +55,9 @@ void Control :: UpdatePos() {
 }
 void Control :: BaseDraw() {
     Draw();
-    BEGIN_SCISSOR_RECT(m_Bounds);
     for (auto element: m_Children) {
         element->BaseDraw();
     }
-    END_SCISSOR_RECT();
 }
 void Control::BaseUpdate(float gameTime) {
 
@@ -209,6 +207,17 @@ Control *Control::SetPadding(short horizontal, short vertical) {
     m_StyleProperties.padding.y = vertical;
     return this;
 }
+
+Control * Control::SetPaddingX(short pad) {
+    m_StyleProperties.padding.x = pad;
+    return this;
+}
+
+Control * Control::SetPaddingY(short pad) {
+    m_StyleProperties.padding.y = pad;
+    return this;
+}
+
 Control* Control::SetBorderThickness(__int8 anchor) {
     m_StyleProperties.border_thickness = anchor;
     return this;
@@ -232,6 +241,14 @@ string Control::GetDebugString() {
     return _debug_string;
 }
 
+Rectangle Control::GetBounds() const {
+    return m_Bounds;
+}
+
+hl_StyleProperties Control::GetStyleProperties() const {
+    return m_StyleProperties;
+}
+
 //end chain properties
 void Control::RecalculateChildrenRecursive() {
     if (m_Parent == nullptr) {
@@ -247,13 +264,14 @@ void Control::PlaceChild(Control *child) const {
     float child_w = child->m_Bounds.width;
     float child_h = child->m_Bounds.height;
     LOG("Calculating anchors of "+child->_debug_string);
-    switch (child->m_Anchor) {
+    switch (child->m_Anchor)  {
         case ANCHOR_TOP_LEFT:
             child->m_LocalPosition.x = child->m_StyleProperties.padding.x;
             child->m_LocalPosition.y = child->m_StyleProperties.padding.y;
             break;
         case ANCHOR_TOP_RIGHT:
             child->m_LocalPosition.x = m_Bounds.width-child->m_StyleProperties.padding.x - child_w;
+            child->m_LocalPosition.y = child->m_StyleProperties.padding.y;
         break;
         case ANCHOR_BOTTOM_LEFT:
             child->m_LocalPosition.x = child->m_StyleProperties.padding.x;
@@ -292,7 +310,7 @@ void Control::PlaceSelf() {
     auto  window_bounds = Rectangle{ 0, 0, static_cast<float>(GetRenderWidth()), static_cast<float>(GetRenderHeight())};
     float my_w = m_Bounds.width;
     float my_h = m_Bounds.height;
-    switch (m_Anchor) {
+    switch (m_Anchor)  {
         case ANCHOR_TOP_LEFT:
             m_LocalPosition.x = m_StyleProperties.padding.x;
             m_LocalPosition.y = m_StyleProperties.padding.y;
@@ -330,8 +348,6 @@ void Control::PlaceSelf() {
             m_LocalPosition.y = window_bounds.height / 2 - my_h / 2;
             break;
         default:
-            break;           
-
+            break;
     }
-
 }

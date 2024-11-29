@@ -20,6 +20,8 @@ private:
 protected:
     string _debug_string = "Control";
 
+    RenderTexture2D m_RenderTex;
+
     Rectangle m_Bounds{0,0,0,0};
     /// the user-defined local draggable rectangle area.
     Rectangle m_DragZone{0,0,0,0};
@@ -39,7 +41,6 @@ protected:
     bool IsHovered = false;
     bool IsClicked = false;
     bool IsDragged = false;
-
     void UpdatePos();
     /// When I am hovered, check through children to see which is under mouse hover.
     bool CheckMouse(Vector2 mousePos);
@@ -60,7 +61,7 @@ public:
     void     BaseDraw();
     void     BaseUpdate(float gameTime);
     Control* SetAnchor(hl_AnchorType anchor);
-    Control* Add(Control* child);
+    virtual Control* Add(Control* child);
     Control* Remove(Control* child);
     Control* SetStyle(hl_StyleProperties style);
     Control* SetRounding(float rounding);
@@ -71,12 +72,16 @@ public:
     Control* SetBackgroundColor(Color color);
     Control* SetColor(Color color);
     Control* SetPadding(short horizontal, short vertical);
+    Control* SetPaddingX(short pad);
+    Control* SetPaddingY(short pad);
     Control* SetBorderThickness(__int8 thickness);
     Control* EnableDragging(Rectangle localDragZone);
     Control* SetMargin(int horizontal, int vertical);
     Control* SetClickAction(void (*func)(hl_ClickEventArgs));
 
     string   GetDebugString();
+    [[nodiscard]] Rectangle GetBounds() const;
+    [[nodiscard]] hl_StyleProperties GetStyleProperties() const;
 };
 }
 

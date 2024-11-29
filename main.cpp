@@ -5,6 +5,7 @@
 #include "Control.h"
 #include "raylib.h"
 #include "TextLabel.h"
+#include "WindowControl.h"
 using namespace HlGui;
 
 void toggle_window_resize(hl_ClickEventArgs args) {
@@ -39,7 +40,11 @@ int main() {
     Control bl = Control(40, 40, ANCHOR_BOTTOM_LEFT);
     Control b = Control(40, 40, ANCHOR_BOTTOM);
     Control br = Control(40, 40, ANCHOR_BOTTOM_RIGHT);
-    gui_root.Add(&tl)->Add(&t)->Add(&tr)->Add(&l)->Add(&c)->Add(&r)->Add(&bl)->Add(&b)->Add(&br)->SetColor(RAYWHITE);
+
+    WindowControl window_test = WindowControl(100,132,ANCHOR_CENTER);
+
+
+    gui_root.Add(&tl)->Add(&t)->Add(&tr)->Add(&l)->Add(&c)->Add(&r)->Add(&bl)->Add(&b)->Add(&br)->SetColor(RAYWHITE)->Add(&window_test);
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);

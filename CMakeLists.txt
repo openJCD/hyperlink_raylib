@@ -42,7 +42,9 @@ add_executable(${PROJECT_NAME} main.cpp
         Control.h
         structs.cpp
         TextLabel.cpp
-        TextLabel.h)
+        TextLabel.h
+        WindowControl.cpp
+        WindowControl.h)
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}
