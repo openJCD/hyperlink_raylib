@@ -14,17 +14,13 @@ void WindowControl::Close() {
 
 void WindowControl::Draw() {
     Control::Draw();
-    Vector2 textSize = MeasureTextEx(m_titleFont, m_title.c_str(), 16, 1);
-    int textx = m_Bounds.x + (m_Bounds.width/2 - textSize.x / 2);
-    int texty = m_Bounds.y + (textSize.y / 2);
-    DrawTextEx(m_titleFont, m_title.c_str(), Vector2(textx, texty), 16, 1, m_StyleProperties.foreground_color);
 }
 
 WindowControl::WindowControl(short width, short height, hl_AnchorType startAnchor) : Control(width, height,
     startAnchor) {
     m_title = string("Window");
-    m_DragZone = Rectangle(0, 0, width, 20);
-    m_StyleProperties = STYLE_HICONTRAST_BG;
+    m_DragZone = Rectangle(0, 0, width, m_titleLabel.GetBounds().height);
+    Control::Add(m_titleLabel.SetStyle(STYLE_HICONTRAST_BG)->SetPadding(0,0)->SetWidth(m_Bounds.width));
 }
 
 Control * WindowControl::Add(Control *child) {

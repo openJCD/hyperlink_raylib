@@ -14,7 +14,6 @@ class TextLabel : public Control {
 protected:
     void Draw() override;
     string m_text = "Label";
-    float m_fntSize = 24;
     Font m_font = GetFontDefault();
 public:
     TextLabel(Font &font, const char* text, hl_AnchorType anchor);

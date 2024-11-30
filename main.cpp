@@ -20,21 +20,23 @@ void toggle_window_resize(hl_ClickEventArgs args) {
 
 int main() {
     InitWindow(800, 600, "Hyperlink Demo");
-    SetTargetFPS(1000);
+    ResourceManager resx = ResourceManager();
+    SetTargetFPS(240);
 
-    Font fnt_main = LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 24, NULL, NULL);
+    resx.AddFont("main", LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 32, NULL, NULL));
     Control gui_root(700, 500, ANCHOR_CENTER);
-    TextLabel tl = TextLabel(fnt_main, "topleft", ANCHOR_TOP_LEFT);
+    TextLabel tl = TextLabel(resx.GetFont("main"), "topleft", ANCHOR_TOP_LEFT);
         tl.SetStyle(STYLE_BUTTON_STATIC);
-    TextLabel t = TextLabel(fnt_main, "top", ANCHOR_TOP);
+    TextLabel t = TextLabel(resx.GetFont("main"), "top", ANCHOR_TOP);
         t.SetStyle(STYLE_BUTTON_STATIC);
-    TextLabel tr = TextLabel(fnt_main, "topright", ANCHOR_TOP_RIGHT);
+    hl_StyleProperties();
+    TextLabel tr = TextLabel(resx.GetFont("main"), "topright", ANCHOR_TOP_RIGHT);
         tr.SetStyle(STYLE_BUTTON_STATIC);
-    TextLabel l = TextLabel(fnt_main, "left", ANCHOR_LEFT);
-    TextLabel c = TextLabel(fnt_main, "center: drag me!", ANCHOR_CENTER);
+    TextLabel l = TextLabel(resx.GetFont("main"), "left", ANCHOR_LEFT);
+    TextLabel c = TextLabel(resx.GetFont("main"), "center: drag me!", ANCHOR_CENTER);
         c.EnableDragging(Rectangle(0,0,200,64))->SetWidth(200)->SetHeight(64);
     Control r = Control(100, 100, ANCHOR_RIGHT);
-        TextLabel r_child1 = TextLabel(fnt_main,"hi",ANCHOR_CENTER);
+        TextLabel r_child1 = TextLabel(resx.GetFont("main"),"hi",ANCHOR_CENTER);
         r_child1.SetStyle(STYLE_HICONTRAST_BG)->SetClickAction(toggle_window_resize);
         r.Add(&r_child1)->SetStyle(STYLE_HICONTRAST_BG);
     Control bl = Control(40, 40, ANCHOR_BOTTOM_LEFT);
@@ -43,17 +45,18 @@ int main() {
 
     WindowControl window_test = WindowControl(100,132,ANCHOR_CENTER);
 
-
     gui_root.Add(&tl)->Add(&t)->Add(&tr)->Add(&l)->Add(&c)->Add(&r)->Add(&bl)->Add(&b)->Add(&br)->SetColor(RAYWHITE)->Add(&window_test);
+
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
         // draw the rest of the stuff
         gui_root.BaseUpdate(GetFrameTime());
-;       gui_root.BaseDraw();
+        gui_root.BaseDraw();
         DrawFPS(650, 10);
         EndDrawing();
     }
+    CloseWindow();
     std::cout << "Bye!" << std::endl;
     return 0;
 }

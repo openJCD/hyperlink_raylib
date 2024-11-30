@@ -15,12 +15,8 @@ namespace HlGui {
     /// The root of the GUI hierarchy. Provides methods for styling, click functions, etc.
 class Control {
 private:
-    /// Internal function for justifying position without anchors.
-    void     PlaceSelf();
 protected:
     string _debug_string = "Control";
-
-    RenderTexture2D m_RenderTex;
 
     Rectangle m_Bounds{0,0,0,0};
     /// the user-defined local draggable rectangle area.
@@ -34,7 +30,6 @@ protected:
     hl_StyleProperties m_StyleProperties;
 
     list<Control*> m_Children;
-    list<Control*>::reverse_iterator m_ChildrenIterator;
     Control* m_Parent = nullptr; // this is essential, otherwise the nullptr check fails, and we get undefined behaviour.
 
     float m_Opacity = 1.0f;

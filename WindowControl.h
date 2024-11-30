@@ -14,7 +14,7 @@ private:
     void Close();
 protected:
     string m_title = "Window";
-    Font m_titleFont = GetFontDefault();
+    TextLabel m_titleLabel = TextLabel(m_title.c_str(), ANCHOR_TOP);
     void Draw() override;
 public:
     WindowControl(short w, short h, hl_AnchorType startAnchor);
