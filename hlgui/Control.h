@@ -5,11 +5,10 @@
 #include <list>
 #include <raylib.h>
 #include <string>
-
 #include "structs.cpp"
 #ifndef CONTROL_H
 #define CONTROL_H
-using namespace std;
+using std::list;
 namespace HlGui {
 
     /// The root of the GUI hierarchy. Provides methods for styling, click functions, etc.
@@ -37,8 +36,6 @@ protected:
     bool IsClicked = false;
     bool IsDragged = false;
     void UpdatePos();
-    /// When I am hovered, check through children to see which is under mouse hover.
-    bool CheckMouse(Vector2 mousePos);
 
     virtual void DoClick(MouseMask mask, MouseButton button);
     void (*OnClick)(hl_ClickEventArgs) = nullptr;
@@ -51,9 +48,14 @@ public:
     virtual  ~Control();
     /*ctor*/ Control(short w, short h, hl_AnchorType anchor);
     explicit Control(hl_AnchorType anchor);
+    /// When I am hovered, check through children to see which is under mouse hover.
+    /// Returns true if root is hovered, false if the rest of the UI is hovered.
+    /// Use to block clicks to the game world in main loop.
+    bool CheckMouse(Vector2 mousePos);
     /// Draw the control. Must be called between BeginDrawing and EndDrawing.
     /// Must be called on the root Control.
     void     BaseDraw();
+    /// Update the root Control's position, along with all children and so on.
     void     BaseUpdate(float gameTime);
     Control* SetAnchor(hl_AnchorType anchor);
     virtual Control* Add(Control* child);
@@ -70,6 +72,11 @@ public:
     Control* SetPaddingX(short pad);
     Control* SetPaddingY(short pad);
     Control* SetBorderThickness(__int8 thickness);
+    /// Allow the user to drag this element around.
+    /// Set the draggable area to the whole UI element.
+    Control* EnableDragging();
+    /// Allow the user to drag this element around.
+    /// Must specify the draggable area.
     Control* EnableDragging(Rectangle localDragZone);
     Control* SetMargin(int horizontal, int vertical);
     Control* SetClickAction(void (*func)(hl_ClickEventArgs));

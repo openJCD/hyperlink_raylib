@@ -38,15 +38,18 @@ if (APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
 endif()
 add_executable(${PROJECT_NAME} main.cpp
-        Control.cpp
-        Control.h
-        structs.cpp
-        TextLabel.cpp
-        TextLabel.h
-        WindowControl.cpp
-        WindowControl.h
-        ResourceManager.cpp
-        ResourceManager.h)
+        hlgui/Control.cpp
+        hlgui/Control.h
+        hlgui/structs.cpp
+        hlgui/TextLabel.cpp
+        hlgui/TextLabel.h
+        hlgui/WindowControl.cpp
+        hlgui/WindowControl.h
+        hlgui/ResourceManager.cpp
+        hlgui/ResourceManager.h
+        hlgui/hlgui.h
+        hlgame/Player.cpp
+        hlgame/Player.h)
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}

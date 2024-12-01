@@ -19,8 +19,8 @@ void WindowControl::Draw() {
 WindowControl::WindowControl(short width, short height, hl_AnchorType startAnchor) : Control(width, height,
     startAnchor) {
     m_title = string("Window");
+    Control::Add(m_titleLabel.SetPadding(0,0)->SetWidth(m_Bounds.width)->SetMargin(0,0));
     m_DragZone = Rectangle(0, 0, width, m_titleLabel.GetBounds().height);
-    Control::Add(m_titleLabel.SetStyle(STYLE_HICONTRAST_BG)->SetPadding(0,0)->SetWidth(m_Bounds.width));
 }
 
 Control * WindowControl::Add(Control *child) {

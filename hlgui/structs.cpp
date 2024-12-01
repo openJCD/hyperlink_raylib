@@ -2,7 +2,6 @@
 // Created by openjcd on 27/11/2024.
 //
 #include <raylib.h>
-#include "ResourceManager.h"
 #define TRANSPARENT Color(0, 0, 0, 0)
 #define STYLE_DEFAULT hl_StyleProperties()
 #define STYLE_BUTTON_STATIC hl_StyleProperties {.rounding = 0, .border_thickness = 1,  .foreground_color = RAYWHITE, .background_color = DARKGRAY, .border_color = GRAY, .margin = {10,10}}
@@ -38,11 +37,11 @@ struct hl_StyleProperties {
     float rounding = 0;
     __int8 border_thickness = 1;
     Color foreground_color = Color(255, 70, 70, 255);
-    Color background_color = Color(0, 0, 0, 0);
+    Color background_color = RAYWHITE;
     Color border_color = GRAY;
     Vector2 padding = {10,10};
     Vector2 margin = {10,10};
-    short font_size = 24;
+    short font_size = 16;
 };
 
 enum MouseMask {

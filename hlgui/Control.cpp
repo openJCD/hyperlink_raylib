@@ -62,7 +62,6 @@ void Control::BaseUpdate(float gameTime) {
         m_LocalPosition.x += GetMouseDelta().x;
         m_LocalPosition.y += GetMouseDelta().y;
     }
-    if (m_Parent == nullptr) CheckMouse(GetMousePosition()); // only recursively check mouse hovers if I am the root control.
     if (IsHovered) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             IsClicked=true;
@@ -219,6 +218,10 @@ Control* Control::SetBorderThickness(__int8 anchor) {
 }
 Control *Control::EnableDragging(Rectangle localDragZone) {
     m_DragZone = localDragZone;
+    return this;
+}
+Control *Control::EnableDragging() {
+    m_DragZone = m_Bounds;
     return this;
 }
 Control *Control::SetMargin(int horizontal, int vertical) {
