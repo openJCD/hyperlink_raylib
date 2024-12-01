@@ -8,13 +8,12 @@
 #include "Control.h"
 #include "ResourceManager.h"
 
-namespace HlGui {
-
 class TextLabel : public Control {
 protected:
     void Draw() override;
     string m_text = "Label";
     Font m_font = ResourceManager::GetDefaultFont();
+    void RecalculateBounds() override;
 public:
     TextLabel(Font &font, const char* text, hl_AnchorType anchor);
 
@@ -25,6 +24,5 @@ public:
     TextLabel *SetText(const char* text);
 };
 
-} // HlGui
 
 #endif //TEXTLABEL_H

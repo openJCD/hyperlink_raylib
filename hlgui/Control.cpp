@@ -12,7 +12,6 @@
 #define END_SCISSOR_RECT() EndScissorMode()
 
 using namespace std;
-using namespace HlGui;
 
 Control::Control(short w, short h, const hl_AnchorType anchor = ANCHOR_TOP_LEFT) {
     m_Anchor = anchor;
@@ -39,6 +38,14 @@ void Control :: UpdatePos() {
     m_Bounds.y = 0;
     m_DragBounds = m_DragZone;
     if (m_Parent != nullptr) {
+        if (m_StyleProperties.fill_parent_h) {
+            m_LocalPosition.y = m_StyleProperties.padding.y;
+            m_Bounds.height = m_Parent->m_Bounds.height - m_LocalPosition.y*2;
+        }
+        if (m_StyleProperties.fill_parent_w) {
+            m_LocalPosition.x = m_StyleProperties.padding.x;
+            m_Bounds.width = m_Parent->m_Bounds.width - m_LocalPosition.x*2;
+        }
         m_Bounds.x = m_Parent->m_Bounds.x + m_LocalPosition.x;
         m_Bounds.y = m_Parent->m_Bounds.y + m_LocalPosition.y;
     } else {
@@ -50,7 +57,8 @@ void Control :: UpdatePos() {
         RecalculateChildrenRecursive();
     }
 }
-void Control :: BaseDraw() {
+
+void Control::BaseDraw() {
     Draw();
     for (auto element: m_Children) {
         element->BaseDraw();
@@ -58,6 +66,7 @@ void Control :: BaseDraw() {
 }
 void Control::BaseUpdate(float gameTime) {
     UpdatePos();
+
     if (IsDragged) {
         m_LocalPosition.x += GetMouseDelta().x;
         m_LocalPosition.y += GetMouseDelta().y;
@@ -81,7 +90,9 @@ void Control::BaseUpdate(float gameTime) {
         if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) {
             DoClick(MOUSE_MASK_UP, MOUSE_BUTTON_RIGHT);
         }
+
     }
+
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
         IsDragged=false; //reset drag if the mouse is released at all.
     }
@@ -89,6 +100,8 @@ void Control::BaseUpdate(float gameTime) {
     for (auto element: m_Children) {
         element->BaseUpdate(gameTime);
     }
+
+    _wasHovered = IsHovered;
     IsHovered = false;
     IsClicked = false; //reset flags at the end of update loop
 }
@@ -133,7 +146,7 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
         }
     }
     if (OnClick != nullptr) {
-        OnClick(hl_ClickEventArgs(mask, button, this));
+        OnClick(hl_ButtonEventArgs(mask, button, this));
     }
 }
 
@@ -150,16 +163,21 @@ Control* Control:: Remove(Control* child) {
 }
 
 void Control::Draw() {
-    DrawRectangleRounded(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.background_color);
-    DrawRectangleRoundedLinesEx(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+    if (m_StyleProperties.rounding > 0.0f) {
+        DrawRectangleRounded(Rectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width+1, m_Bounds.height+1), m_StyleProperties.rounding, 10, m_StyleProperties.background_color);
+        DrawRectangleRoundedLinesEx(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+    } else {
+        DrawRectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width, m_Bounds.height, m_StyleProperties.background_color);
+        DrawRectangleLinesEx(m_Bounds, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+    }
 }
-
 Control::~Control() {
     m_Children.clear();
 }
 
 Control* Control :: SetStyle(hl_StyleProperties style) {
     m_StyleProperties = style;
+    RecalculateBounds();
     return this;
 }
 Control *Control::SetRounding(float rounding) {
@@ -188,6 +206,16 @@ Control *Control::SetHeight(float height) {
 Control * Control::SetSize(float w, float h) {
     SetHeight(h);
     SetWidth(w);
+    return this;
+}
+
+Control * Control::FillParentWidth() {
+    m_StyleProperties.fill_parent_w = true;
+    return this;
+}
+
+Control * Control::FillParentHeight() {
+    m_StyleProperties.fill_parent_h = true;
     return this;
 }
 
@@ -226,10 +254,11 @@ Control *Control::EnableDragging() {
 }
 Control *Control::SetMargin(int horizontal, int vertical) {
     m_StyleProperties.margin = Vector2(horizontal, vertical);
+    RecalculateBounds();
     return this;
 }
 
-Control * Control::SetClickAction(void(*func)(hl_ClickEventArgs)) {
+Control * Control::SetClickAction(void(*func)(hl_ButtonEventArgs)) {
     OnClick = func;
     LOG("Set click action for " + _debug_string);
     return this;
@@ -247,7 +276,6 @@ hl_StyleProperties Control::GetStyleProperties() const {
     return m_StyleProperties;
 }
 
-//end chain properties
 void Control::RecalculateChildrenRecursive() {
     for (auto control: m_Children ) {
         PlaceChild(control);
@@ -255,6 +283,12 @@ void Control::RecalculateChildrenRecursive() {
     }
 }
 
+void Control::RecalculateBounds() {}
+
+Control * Control::SetMargin(short x, short y) {
+    m_StyleProperties.margin = Vector2(x, y);
+    return this;
+}
 void Control::PlaceChild(Control *child) const {
     float child_w = child->m_Bounds.width;
     float child_h = child->m_Bounds.height;
@@ -297,7 +331,7 @@ void Control::PlaceChild(Control *child) const {
             child->m_LocalPosition.y = m_Bounds.height / 2 - child_h / 2;
             break;
         default:
-            break;           child->m_LocalPosition.y = child->m_StyleProperties.padding.y;
+            break;
 
     }
 }

@@ -4,37 +4,41 @@
 
 #include "TextLabel.h"
 
-namespace HlGui {
-    void TextLabel::Draw() {
-        Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
-        int textx = m_Bounds.x + (m_Bounds.width/2 - textSize.x / 2);
-        int texty = m_Bounds.y + (m_Bounds.height/2 - textSize.y / 2);
-        DrawRectangleRounded(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.background_color);
-        if (m_StyleProperties.border_thickness>0)
-            DrawRectangleRoundedLinesEx(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
-        DrawTextEx(m_font, m_text.c_str(), Vector2(textx, texty), m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
-    }
-    TextLabel::TextLabel(Font &font, const char* text, hl_AnchorType anchor): Control(anchor) {
-        m_text = text;
-        _debug_string = "TextLabel_'" + string(text) + "'";
-        m_Bounds = Rectangle(0,0,(MeasureTextEx(m_font, text, m_StyleProperties.font_size, 1).x+m_StyleProperties.margin.x*2), m_StyleProperties.font_size+m_StyleProperties.margin.y*2);
-        m_font = font;
-    }
-    TextLabel::TextLabel(const char* text, hl_AnchorType anchor): Control(anchor) {
-        m_text = text;
-        _debug_string = "TextLabel_'" + string(text) + "'";
-        m_Bounds = Rectangle(0, 0, MeasureText(text, m_StyleProperties.font_size) + m_StyleProperties.margin.x * 2,
-                             m_StyleProperties.font_size + m_StyleProperties.margin.y * 2);
-    }
-    TextLabel::~TextLabel() {
-        m_text.clear();
-    }
-    void TextLabel::Update(float gameTime) {
-        this->Control::Update(gameTime);
-    }
+void TextLabel::Draw() {
+    Control::Draw();
+    Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
 
-    TextLabel * TextLabel::SetText(const char *text) {
-        m_text = text;
-        return this;
-    }
-} // HlGui
+    int textx = m_Bounds.x + (m_Bounds.width/2 - textSize.x / 2);
+    int texty = m_Bounds.y + (m_Bounds.height/2 - textSize.y / 2);
+
+    DrawTextEx(m_font, m_text.c_str(), Vector2(textx, texty), m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
+}
+
+void TextLabel::RecalculateBounds() {
+    Control::RecalculateBounds();
+    Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
+    m_Bounds = Rectangle(m_Bounds.x, m_Bounds.y, textSize.x+m_StyleProperties.margin.x*2, textSize.y+m_StyleProperties.margin.y);
+}
+
+TextLabel::TextLabel(Font &font, const char* text, hl_AnchorType anchor): Control(anchor) {
+    m_text = text;
+    _debug_string = "TextLabel_'" + string(text) + "'";
+    m_font = font;
+    TextLabel::RecalculateBounds();
+}
+TextLabel::TextLabel(const char* text, hl_AnchorType anchor): Control(anchor) {
+    m_text = text;
+    _debug_string = "TextLabel_'" + string(text) + "'";
+    RecalculateBounds();
+}
+TextLabel::~TextLabel() {
+    m_text.clear();
+}
+void TextLabel::Update(float gameTime) {
+    this->Control::Update(gameTime);
+}
+
+TextLabel * TextLabel::SetText(const char *text) {
+    m_text = text;
+    return this;
+}

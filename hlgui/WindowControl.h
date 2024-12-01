@@ -4,11 +4,7 @@
 
 #ifndef WINDOWCONTROL_H
 #define WINDOWCONTROL_H
-#include "Control.h"
 #include "TextLabel.h"
-using namespace  HlGui;
-namespace HlGui {
-
 class WindowControl : public Control {
 private:
     void Close();
@@ -22,7 +18,5 @@ public:
     WindowControl* SetTitle(const char* title);
     ~WindowControl() override;
 };
-
-} // HlGui
 
 #endif //WINDOWCONTROL_H

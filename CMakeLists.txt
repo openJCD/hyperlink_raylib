@@ -49,7 +49,9 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgui/ResourceManager.h
         hlgui/hlgui.h
         hlgame/Player.cpp
-        hlgame/Player.h)
+        hlgame/Player.h
+        hlgui/Button.cpp
+        hlgui/Button.h)
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}
