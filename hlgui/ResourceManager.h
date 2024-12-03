@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <raylib.h>
-#include "structs.cpp"
+#include "structs.h"
 using std::map;
 using std::string;
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.11)
 project(hyperlink_raylib_rebuild)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -40,7 +40,7 @@ endif()
 add_executable(${PROJECT_NAME} main.cpp
         hlgui/Control.cpp
         hlgui/Control.h
-        hlgui/structs.cpp
+        "hlgui/structs.h"
         hlgui/TextLabel.cpp
         hlgui/TextLabel.h
         hlgui/WindowControl.cpp
@@ -51,7 +51,8 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgame/Player.cpp
         hlgame/Player.h
         hlgui/Button.cpp
-        hlgui/Button.h)
+        hlgui/Button.h
+        hlgui/FpsWidget.h "hlgame/NetworkNode.h" "hlgame/NetworkNode.cpp" "hlgame/structs.h")
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}

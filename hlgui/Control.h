@@ -7,7 +7,7 @@
 #include <string>
 
 #include "ResourceManager.h"
-#include "structs.cpp"
+#include "structs.h"
 #ifndef CONTROL_H
 #define CONTROL_H
 using std::list;
