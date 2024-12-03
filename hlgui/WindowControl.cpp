@@ -23,11 +23,13 @@ WindowControl::WindowControl(short width, short height, hl_AnchorType startAncho
 Control * WindowControl::Add(Control *child) {
     auto _default = Control::Add(child);
     child->SetPaddingY(child->GetStyleProperties().padding.y + m_DragZone.height);
+    RecalculateChildrenRecursive();
     return _default;
 }
 
 WindowControl *WindowControl::SetTitle(const char *title) {
     m_title = title;
+    m_titleLabel.SetText(title);
     return this;
 }
 

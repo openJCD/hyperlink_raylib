@@ -13,26 +13,29 @@ void Button::OnMouseLeave() {  }
 
 void Button::Update(float gameTime) {
     TextLabel::Update(gameTime);
-    if (IsHovered && !_wasHovered) {
-        m_StyleProperties = m_StyleProperties_Hovered;
-        RecalculateBounds();
-    } else if (!IsHovered && _wasHovered) {
-        m_StyleProperties = m_StyleProperties_Default;
-        RecalculateBounds();
-    }
-    if (IsClicked && !_wasClicked) {
+    if (IsClicked and !_wasClicked and IsHovered) {
         m_StyleProperties = m_StyleProperties_Clicked;
         RecalculateBounds();
     } else if (!IsClicked and _wasClicked) {
         m_StyleProperties = m_StyleProperties_Hovered;
         RecalculateBounds();
     }
-    _wasClicked = IsClicked;
+    if (IsHovered and !_wasHovered && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        m_StyleProperties = m_StyleProperties_Hovered;
+        RecalculateBounds();
+    } else if (!IsHovered and _wasHovered) {
+        m_StyleProperties = m_StyleProperties_Default;
+        RecalculateBounds();
+    }
     _wasHovered = IsHovered;
+    _wasClicked = IsClicked;
 }
 
 Button::Button(const char *text, void (*onclick)(hl_ButtonEventArgs), hl_AnchorType anchor): TextLabel(text, anchor) {
-    SetStyle(m_StyleProperties_Hovered);
+    _debug_string = "Button_'" + string(text) + "'";
+    m_StyleProperties = ResourceManager::GetStyle("button");
+    m_StyleProperties_Hovered = ResourceManager::GetStyle("buttonHovered");
+    m_StyleProperties_Default = m_StyleProperties;
     OnClick = onclick;
 }
 

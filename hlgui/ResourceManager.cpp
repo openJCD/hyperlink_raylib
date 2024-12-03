@@ -17,23 +17,32 @@ Font & ResourceManager::GetDefaultFont() {
 void ResourceManager::RemoveFont(const char *name) {
     res_Fonts.erase(name);
 }
-Shader & ResourceManager::GetShader(const char *name) {
-    return res_Shaders[name];
-}
-void ResourceManager::AddShader(const char *name, Shader shader) {
-    res_Shaders[name] = shader;
-}
-void ResourceManager::LoadShaderAndAdd(const char *name, const char *path) {
-    res_Shaders[name] = LoadShader(0, path);
+void ResourceManager:: AddStyle(const char *name, hl_StyleProperties style) {
+    res_StylePresets[name] = style;
 }
 
-void ResourceManager::RemoveShader(const char *name) {
-    res_Shaders.erase(name);
+void ResourceManager::SetDefaultStyle(hl_StyleProperties style) {
+    res_StylePresets["default"] = style;
+}
+
+hl_StyleProperties ResourceManager::GetDefaultStyle() {
+    if (!res_StylePresets.contains("default")) {
+        res_StylePresets["default"] = hl_StyleProperties();
+    }
+    return res_StylePresets["default"];
+}
+
+hl_StyleProperties ResourceManager::GetStyle(const char *name) {
+    if (!res_StylePresets.contains(name)) {
+        return GetDefaultStyle();
+    }
+    return res_StylePresets[name];
 }
 
 void ResourceManager::AddFont(const char *name, Font font) {
     res_Fonts[name] = font;
 }
+
 void ResourceManager::LoadFontAndAdd(const char *name, const char *path, short fontSize) {
     res_Fonts[name] = LoadFontEx(path, fontSize, NULL, NULL);
 }

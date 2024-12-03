@@ -16,12 +16,10 @@ using namespace std;
 Control::Control(short w, short h, const hl_AnchorType anchor = ANCHOR_TOP_LEFT) {
     m_Anchor = anchor;
     m_Bounds = Rectangle(0,0,w,h);
-    m_StyleProperties = hl_StyleProperties(); // default styles
     _debug_string = "Control_" + to_string(anchor) + "_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(hl_AnchorType anchor) {
     m_Anchor = anchor;
-    m_StyleProperties = hl_StyleProperties(); // default styles
     _debug_string = "Control_" + to_string(anchor) + "_autoSized";
 }
 Control* Control::SetAnchor(hl_AnchorType anchor) {
@@ -29,9 +27,7 @@ Control* Control::SetAnchor(hl_AnchorType anchor) {
     return this;
 }
 
-void Control :: Update(float gameTime) {
-
-}
+void Control :: Update(float gameTime) {}
 void Control :: UpdatePos() {
 
     m_Bounds.x = 0;
@@ -90,7 +86,6 @@ void Control::BaseUpdate(float gameTime) {
         if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) {
             DoClick(MOUSE_MASK_UP, MOUSE_BUTTON_RIGHT);
         }
-
     }
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
@@ -157,7 +152,7 @@ Control* Control::Add(Control *child) {
     PlaceChild(child);
     return this;
 }
-Control* Control:: Remove(Control* child) {
+Control* Control:: Remove(Control *child) {
     m_Children.remove(child);
     return this;
 }
@@ -275,7 +270,6 @@ Rectangle Control::GetBounds() const {
 hl_StyleProperties Control::GetStyleProperties() const {
     return m_StyleProperties;
 }
-
 void Control::RecalculateChildrenRecursive() {
     for (auto control: m_Children ) {
         PlaceChild(control);

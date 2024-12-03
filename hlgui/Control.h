@@ -5,6 +5,8 @@
 #include <list>
 #include <raylib.h>
 #include <string>
+
+#include "ResourceManager.h"
 #include "structs.cpp"
 #ifndef CONTROL_H
 #define CONTROL_H
@@ -25,7 +27,7 @@ protected:
     Vector2 m_LocalPosition{0,0};
 
     hl_AnchorType m_Anchor = ANCHOR_TOP_LEFT;
-    hl_StyleProperties m_StyleProperties;
+    hl_StyleProperties m_StyleProperties = ResourceManager::GetDefaultStyle();
     list<Control*> m_Children;
     Control* m_Parent = nullptr;
 
@@ -60,8 +62,8 @@ public:
     /// Update the root Control's position, along with all children and so on.
     void     BaseUpdate(float gameTime);
     Control* SetAnchor(hl_AnchorType anchor);
-    virtual Control* Add(Control* child);
-    Control* Remove(Control* child);
+    virtual Control* Add(Control *child);
+    Control* Remove(Control *child);
     virtual Control* SetStyle(hl_StyleProperties style);
     Control* SetRounding(float rounding);
     Control* SetWidth(float width);
@@ -89,6 +91,8 @@ public:
     string   GetDebugString();
     [[nodiscard]] Rectangle GetBounds() const;
     [[nodiscard]] hl_StyleProperties GetStyleProperties() const;
+
+    bool operator==(const Control &) const;
 };
 
 #endif //CONTROL_H

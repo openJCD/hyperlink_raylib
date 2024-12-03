@@ -13,5 +13,19 @@
 static void GuiSetGlobalFont(Font font) {
     ResourceManager::AddFont("default", font);
 }
-
+static void GuiSetDefaultStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("default", style);
+}
+static void GuiSetButtonStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("button", style);
+}
+static void GuiSetButtonHoveredStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("buttonHovered", style);
+}
+static void GuiSetWindowStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("window", style);
+}
+static void GuiSetTextLabelStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("textLabel", style);
+}
 #endif //HLGUI_H

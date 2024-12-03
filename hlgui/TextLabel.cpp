@@ -4,6 +4,9 @@
 
 #include "TextLabel.h"
 
+#include <iostream>
+#include <ostream>
+
 void TextLabel::Draw() {
     Control::Draw();
     Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
@@ -24,16 +27,21 @@ TextLabel::TextLabel(Font &font, const char* text, hl_AnchorType anchor): Contro
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
     m_font = font;
+    Control::SetStyle(ResourceManager::GetStyle("textLabel"));
     TextLabel::RecalculateBounds();
 }
 TextLabel::TextLabel(const char* text, hl_AnchorType anchor): Control(anchor) {
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
-    RecalculateBounds();
+    Control::SetStyle(ResourceManager::GetStyle("textLabel"));
+    TextLabel::RecalculateBounds();
 }
 TextLabel::~TextLabel() {
     m_text.clear();
 }
+
+// end data binding functions
+
 void TextLabel::Update(float gameTime) {
     this->Control::Update(gameTime);
 }

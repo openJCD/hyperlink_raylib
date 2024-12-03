@@ -3,13 +3,19 @@
 //
 #pragma once
 #include <raylib.h>
+
 #define TRANSPARENT Color(0, 0, 0, 0)
+#define BG_DARK Color (23, 19, 19, 225)
+#define FG_HIGHLIGHT Color(255, 173, 51, 255)
+
 #define STYLE_DEFAULT hl_StyleProperties()
-#define STYLE_BUTTON_STATIC hl_StyleProperties {.rounding = 0.1, .border_thickness = 1,  .foreground_color = RAYWHITE, .background_color = DARKGRAY, .border_color = GRAY, .margin = {10,10}}
-#define STYLE_BUTTON_HOVERED hl_StyleProperties {.rounding = 0.1, .foreground_color = DARKGRAY, .background_color=RAYWHITE, .border_color=GRAY}
+#define STYLE_BUTTON_STATIC hl_StyleProperties {.rounding = 0, .border_thickness = 1,  .foreground_color = RAYWHITE, .background_color = DARKGRAY, .border_color = GRAY, .margin = {10,10}}
+#define STYLE_BUTTON_HOVERED hl_StyleProperties {.rounding = 0, .border_thickness=2, .foreground_color = BG_DARK, .background_color=FG_HIGHLIGHT, .border_color=BG_DARK}
 #define STYLE_TEXT_LABEL hl_StyleProperties {.rounding = 0, .border_thickness = 0, .foreground_color = BLACK, .background_color = TRANSPARENT, .margin={3,3}}
-#define STYLE_HICONTRAST_BG hl_StyleProperties {.background_color = YELLOW}
-#define LOG(msg) std::cout << "[GUI INFO]: " << msg <<  std::endl
+#define STYLE_HICONTRAST hl_StyleProperties { .foreground_color = FG_HIGHLIGHT, .background_color = BG_DARK, .border_color=FG_HIGHLIGHT }
+
+
+#define LOG(msg) std::cout << "[GUI INFO]: " << msg << std::endl
 class Control;
 using namespace std;
 enum hl_AnchorType {
@@ -52,4 +58,17 @@ struct hl_ButtonEventArgs {
     MouseMask mask;
     MouseButton button;
     Control* sender;
+};
+
+enum hl_BindType {
+    DATABIND_NONE,
+    DATABIND_INTEGER,
+    DATABIND_FLOAT,
+    DATABIND_STRING,
+};
+
+struct hl_DataBind {
+    hl_BindType type = DATABIND_NONE;
+    void* p_Data = nullptr;
+    int location_index = -1;
 };
