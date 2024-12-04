@@ -5,7 +5,7 @@
 #include "Button.h"
 
 #include <iostream>
-#include "structs.h"
+#include "gui_structs.h"
 #include <ostream>
 
 void Button::OnMouseEnter() {  }

@@ -146,13 +146,13 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
 }
 
 // chain properties
-Control* Control::Add(Control *child) {
+Control* Control::Add (shared_ptr<Control> child) {
     m_Children.push_back(child);
     child->m_Parent = this;
     PlaceChild(child);
     return this;
 }
-Control* Control:: Remove(Control *child) {
+Control* Control:: Remove(shared_ptr<Control> child) {
     m_Children.remove(child);
     return this;
 }
@@ -271,7 +271,7 @@ hl_StyleProperties Control::GetStyleProperties() const {
     return m_StyleProperties;
 }
 void Control::RecalculateChildrenRecursive() {
-    for (auto control: m_Children ) {
+    for (const auto control: m_Children ) {
         PlaceChild(control);
         control->RecalculateChildrenRecursive();
     }
@@ -283,7 +283,7 @@ Control * Control::SetMargin(short x, short y) {
     m_StyleProperties.margin = Vector2(x, y);
     return this;
 }
-void Control::PlaceChild(Control *child) const {
+void Control::PlaceChild(shared_ptr<Control> child) const {
     float child_w = child->m_Bounds.width;
     float child_h = child->m_Bounds.height;
     LOG("Calculating anchors of "+child->_debug_string);

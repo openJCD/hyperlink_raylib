@@ -40,7 +40,8 @@ endif()
 add_executable(${PROJECT_NAME} main.cpp
         hlgui/Control.cpp
         hlgui/Control.h
-        "hlgui/structs.h"
+        "hlgame/game_structs.h"
+        "hlgui/gui_structs.h"
         hlgui/TextLabel.cpp
         hlgui/TextLabel.h
         hlgui/WindowControl.cpp
@@ -52,7 +53,8 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgame/Player.h
         hlgui/Button.cpp
         hlgui/Button.h
-        hlgui/FpsWidget.h "hlgame/NetworkNode.h" "hlgame/NetworkNode.cpp" "hlgame/structs.h")
+        hlgui/FpsWidget.h 
+        "hlgame/NetworkNode.h"  "hlgame/NetworkNode.cpp")
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}

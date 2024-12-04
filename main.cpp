@@ -16,11 +16,12 @@ bool _useShader = true;
 
 void toggle_shader(hl_ButtonEventArgs args) {
     if (args.mask != MOUSE_MASK_DOWN) return;
+    LOG("Shader is not available right now");
     _useShader = !_useShader;
 }
 
 void toggle_fullscreen(hl_ButtonEventArgs args) {
-    if (args.mask != MOUSE_MASK_DOWN) return;
+    if (args.mask != MOUSE_MASK_UP) return;
     if (IsWindowState(FLAG_BORDERLESS_WINDOWED_MODE)) {
         ClearWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
     } else {
@@ -40,24 +41,15 @@ int main() {
 
     GuiSetGlobalFont(LoadFont("resources/gui/fonts/JetBrainsMono-Regular.ttf"));
     GuiSetDefaultStyle(STYLE_HICONTRAST);
+    GuiSetButtonStyle(STYLE_BUTTON_STATIC);
 
-    Shader bloom_shader = LoadShader(0, "resources/shaders/bloom.fs");
-
-    int shaderFrameBufferVar = GetShaderLocation(bloom_shader, "size");
-    int shaderSamplesVar = GetShaderLocation(bloom_shader, "samples");
-    int shaderQualityVar = GetShaderLocation(bloom_shader, "quality");
-    float shaderSamples[1] = {7.5f};
-    float shaderQuality[1] = {2.5f};
-    SetShaderValue(bloom_shader, shaderSamplesVar,  shaderSamples, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(bloom_shader, shaderQualityVar, shaderQuality, SHADER_UNIFORM_FLOAT);
-
-    Control gui_root(800, 600, ANCHOR_CENTER);
+    /*Control gui_root(800, 600, ANCHOR_CENTER);
     TextLabel tl = TextLabel("topleft", ANCHOR_TOP_LEFT);
     TextLabel t = TextLabel( "top", ANCHOR_TOP);
     TextLabel tr = TextLabel("topright", ANCHOR_TOP_RIGHT);
     TextLabel l = TextLabel("left", ANCHOR_LEFT);
     TextLabel c = TextLabel("center: drag me!", ANCHOR_CENTER);
-        c.EnableDragging(Rectangle(0,0,200,64))->SetWidth(200)->SetHeight(64);
+    c.EnableDragging(Rectangle(0, 0, 200, 64));
     Control r = Control(100, 100, ANCHOR_RIGHT);
         Button r_child1 = Button("borderless", toggle_fullscreen, ANCHOR_CENTER);
         r.Add(&r_child1);
@@ -79,8 +71,12 @@ int main() {
         ->Add(&bl)
         ->Add(&b)
         ->Add(&br)
-        ->Add(window_test.SetStyle(STYLE_HICONTRAST));
-
+        ->Add(window_test.SetStyle(STYLE_HICONTRAST));*/
+    GuiBegin(renderWidth, renderHeight);
+        GuiBeginControl(200,200,ANCHOR_TOP);
+            GuiCreateControl(100,100,ANCHOR_CENTER);
+        GuiEndControl();
+    Control& gui_root = GuiEnd();
     while (!WindowShouldClose()) {
         if (IsWindowResized()) {
             renderWidth = GetRenderWidth();
@@ -88,7 +84,6 @@ int main() {
             UnloadRenderTexture(gui_render_texture);
             gui_render_texture = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
             float fbufferSize[2] = {(float)GetRenderWidth()*1.5f, (float) GetRenderHeight()*1.5f};
-            SetShaderValue(bloom_shader, shaderFrameBufferVar, fbufferSize, SHADER_UNIFORM_VEC2);
         }
         gui_root.CheckMouse(GetMousePosition());
         gui_root.BaseUpdate(GetFrameTime());
@@ -99,12 +94,11 @@ int main() {
 
         BeginDrawing();
         ClearBackground(BG_DARK);
-        if (_useShader) BeginShaderMode(bloom_shader);
+        
         DrawTextureRec(gui_render_texture.texture,
             Rectangle( 0, 0, (float)gui_render_texture.texture.width, -(float)gui_render_texture.texture.height),
             Vector2(0,0),
             WHITE);
-        if (_useShader) EndShaderMode();
         EndDrawing();
     }
     CloseWindow();

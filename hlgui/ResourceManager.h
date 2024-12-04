@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <raylib.h>
-#include "structs.h"
+#include "gui_structs.h"
 using std::map;
 using std::string;
 
@@ -24,7 +24,6 @@ public:
     static void AddFont(const char* name, Font font);
     static void LoadFontAndAdd(const char *name, const char *path, short fontSize);
     static void RemoveFont(const char* name);
-
     // styles
     static void AddStyle(const char* name, hl_StyleProperties style);
     static void SetDefaultStyle(hl_StyleProperties style);

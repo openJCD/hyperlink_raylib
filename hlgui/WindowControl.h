@@ -15,7 +15,7 @@ protected:
     void Draw() override;
 public:
     WindowControl(short w, short h, hl_AnchorType startAnchor);
-    Control* Add(Control *child) override;
+    Control* Add(shared_ptr<Control> child) override;
     WindowControl* SetTitle(const char* title);
     ~WindowControl() override;
 };
