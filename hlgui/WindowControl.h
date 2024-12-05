@@ -6,8 +6,6 @@
 #define WINDOWCONTROL_H
 #include "TextLabel.h"
 class WindowControl : public Control {
-private:
-    void Close();
 protected:
     string m_title = "Window";
     TextLabel m_titleLabel = TextLabel("Window", ANCHOR_TOP);

@@ -54,7 +54,17 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgui/Button.cpp
         hlgui/Button.h
         hlgui/FpsWidget.h 
-        "hlgame/NetworkNode.h"  "hlgame/NetworkNode.cpp")
+        "hlgame/NetworkNode.h"  "hlgame/NetworkNode.cpp"
+        hlgui/perf_profile_helpers.h
+        hlgame/GameNodeMap.cpp
+        hlgame/GameNodeMap.h
+        hlgame/os/CcOS.cpp
+        hlgame/os/CcOS.h
+        hlgame/os/OsProgram.cpp
+        hlgame/os/OsProgram.h
+        hlgui/GuiScene.cpp
+        hlgui/GuiScene.h
+)
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}

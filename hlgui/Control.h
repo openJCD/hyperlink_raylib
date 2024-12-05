@@ -2,6 +2,7 @@
 // Created by openjcd on 27/11/2024.
 //
 #pragma once
+#include <functional>
 #include <list>
 #include <memory>
 #include <raylib.h>
@@ -12,10 +13,9 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 using std::list;
-
-    /// The root of the GUI hierarchy. Provides methods for styling, click functions, etc.
+using std::shared_ptr;
+/// The root of the GUI hierarchy. Provides methods for styling, click functions, etc.
 class Control {
-private:
 protected:
     string _debug_string = "Control";
 
@@ -32,21 +32,20 @@ protected:
     list<shared_ptr<Control>> m_Children;
     Control* m_Parent = nullptr;
 
-    float m_Opacity = 1.0f;
     bool IsHovered = false;
     bool _wasHovered = false;
     bool IsClicked = false;
     bool IsDragged = false;
+    bool IsEnabled = true;
     void UpdatePos();
 
     virtual void DoClick(MouseMask mask, MouseButton button);
-    void (*OnClick)(hl_ButtonEventArgs) = nullptr;
+    std::function<void(hl_ButtonEventArgs)> OnClick = nullptr;
 
     virtual void Draw();
     virtual void Update(float gameTime);
-    void     PlaceChild(shared_ptr<Control> child) const;
-
-    void     RecalculateChildrenRecursive();
+    void         PlaceChild(shared_ptr<Control> child) const;
+    void         RecalculateChildrenRecursive() const;
     virtual void RecalculateBounds();
 public:
     virtual  ~Control();
@@ -66,6 +65,8 @@ public:
     virtual Control* Add(shared_ptr<Control> child);
     Control* Remove(shared_ptr<Control> child);
     virtual Control* SetStyle(hl_StyleProperties style);
+    Control* Enable();
+    Control* Disable();
     Control* SetRounding(float rounding);
     Control* SetWidth(float width);
     Control* SetHeight(float height);
@@ -78,6 +79,7 @@ public:
     Control* SetPadding(short horizontal, short vertical);
     Control* SetPaddingX(short pad);
     Control* SetPaddingY(short pad);
+    Control* SetOpacity(float opacity);
     Control* SetMargin(short x, short y);
     Control* SetBorderThickness(__int8 thickness);
     /// Allow the user to drag this element around.
@@ -87,13 +89,17 @@ public:
     /// Must specify the draggable area.
     Control* EnableDragging(Rectangle localDragZone);
     Control* SetMargin(int horizontal, int vertical);
-    Control* SetClickAction(void (*func)(hl_ButtonEventArgs));
+    Control* SetClickAction(std::function<void(hl_ButtonEventArgs)> func);
 
-    string   GetDebugString();
+    [[nodiscard]] string   GetDebugString();
     [[nodiscard]] Rectangle GetBounds() const;
     [[nodiscard]] hl_StyleProperties GetStyleProperties() const;
-
-    bool operator==(const Control &) const;
+    [[nodiscard]] hl_AnchorType GetAnchor() const;
 };
+
+inline Control * Control::SetOpacity(float opacity) {
+    m_StyleProperties.opacity = opacity;
+    return this;
+}
 
 #endif //CONTROL_H

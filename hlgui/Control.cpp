@@ -1,18 +1,13 @@
 ﻿//
 // Created by openjcd on 27/11/2024.
 //
-#pragma once
 
 #include "Control.h"
 #include <iostream>
 #include <ostream>
 #include <ranges>
-#define LOG_WARN(msg) std::cout << msg << std::endl
-#define BEGIN_SCISSOR_RECT(rectangle) (BeginScissorMode(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
-#define END_SCISSOR_RECT() EndScissorMode()
 
-using namespace std;
-
+using std::list, std::shared_ptr, std::to_string, std::make_shared;
 Control::Control(short w, short h, const hl_AnchorType anchor = ANCHOR_TOP_LEFT) {
     m_Anchor = anchor;
     m_Bounds = Rectangle(0,0,w,h);
@@ -55,14 +50,22 @@ void Control :: UpdatePos() {
 }
 
 void Control::BaseDraw() {
+    if (!IsEnabled) return;
     Draw();
-    for (auto element: m_Children) {
+    for (auto &element: m_Children) {
         element->BaseDraw();
     }
 }
 void Control::BaseUpdate(float gameTime) {
+    if (!IsEnabled) return;
     UpdatePos();
-
+    if (m_Parent != nullptr) {
+        m_StyleProperties.opacity = 1;
+        m_StyleProperties.opacity += m_Parent->GetStyleProperties().opacity;
+        m_StyleProperties.background_color = ColorAlpha(m_StyleProperties.background_color, m_StyleProperties.opacity);
+        m_StyleProperties.border_color = ColorAlpha(m_StyleProperties.border_color, m_StyleProperties.opacity);
+        m_StyleProperties.foreground_color = ColorAlpha(m_StyleProperties.foreground_color, m_StyleProperties.opacity);
+    }
     if (IsDragged) {
         m_LocalPosition.x += GetMouseDelta().x;
         m_LocalPosition.y += GetMouseDelta().y;
@@ -92,7 +95,7 @@ void Control::BaseUpdate(float gameTime) {
         IsDragged=false; //reset drag if the mouse is released at all.
     }
     Update(gameTime);
-    for (auto element: m_Children) {
+    for (auto &element: m_Children) {
         element->BaseUpdate(gameTime);
     }
 
@@ -102,6 +105,7 @@ void Control::BaseUpdate(float gameTime) {
 }
 
 bool Control::CheckMouse(Vector2 mousePos) {
+    if (!IsEnabled) return false;
     if (CheckCollisionPointRec(mousePos, m_Bounds)) {
         if (CheckCollisionPointRec(mousePos, m_DragBounds)) {
             IsHovered=true;
@@ -158,9 +162,18 @@ Control* Control:: Remove(shared_ptr<Control> child) {
 }
 
 void Control::Draw() {
+    if (m_Parent == nullptr) { return; }
     if (m_StyleProperties.rounding > 0.0f) {
-        DrawRectangleRounded(Rectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width+1, m_Bounds.height+1), m_StyleProperties.rounding, 10, m_StyleProperties.background_color);
-        DrawRectangleRoundedLinesEx(m_Bounds, m_StyleProperties.rounding, 10, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+        DrawRectangleRounded(
+            Rectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width + 1, m_Bounds.height + 1),
+            m_StyleProperties.rounding,
+            10,
+            m_StyleProperties.background_color);
+        DrawRectangleRoundedLinesEx(m_Bounds,
+            m_StyleProperties.rounding,
+            10,
+            m_StyleProperties.border_thickness,
+            m_StyleProperties.border_color);
     } else {
         DrawRectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width, m_Bounds.height, m_StyleProperties.background_color);
         DrawRectangleLinesEx(m_Bounds, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
@@ -170,23 +183,36 @@ Control::~Control() {
     m_Children.clear();
 }
 
-Control* Control :: SetStyle(hl_StyleProperties style) {
+Control * Control :: SetStyle(hl_StyleProperties style) {
     m_StyleProperties = style;
-    RecalculateBounds();
     return this;
 }
-Control *Control::SetRounding(float rounding) {
+
+Control * Control::Enable() {
+    IsEnabled = true;
+    return this;
+}
+
+Control * Control::Disable() {
+    IsEnabled = false;
+    return this;
+}
+
+Control * Control::SetRounding(float rounding) {
     m_StyleProperties.rounding = rounding;
     return this;
 }
-Control *Control:: SetBorderColor(Color color) {
+
+Control * Control:: SetBorderColor(Color color) {
     m_StyleProperties.border_color = color;
     return this;
 }
+
 Control * Control::SetBackgroundColor(Color color) {
     m_StyleProperties.background_color = color;
     return this;
 }
+
 Control * Control::SetColor(Color color) {
     m_StyleProperties.foreground_color = color;
     return this;
@@ -249,11 +275,10 @@ Control *Control::EnableDragging() {
 }
 Control *Control::SetMargin(int horizontal, int vertical) {
     m_StyleProperties.margin = Vector2(horizontal, vertical);
-    RecalculateBounds();
     return this;
 }
 
-Control * Control::SetClickAction(void(*func)(hl_ButtonEventArgs)) {
+Control * Control::SetClickAction(std::function<void(hl_ButtonEventArgs)> func){
     OnClick = func;
     LOG("Set click action for " + _debug_string);
     return this;
@@ -270,8 +295,13 @@ Rectangle Control::GetBounds() const {
 hl_StyleProperties Control::GetStyleProperties() const {
     return m_StyleProperties;
 }
-void Control::RecalculateChildrenRecursive() {
-    for (const auto control: m_Children ) {
+
+hl_AnchorType Control::GetAnchor() const {
+    return m_Anchor;
+}
+
+void Control::RecalculateChildrenRecursive() const {
+    for (const auto &control: m_Children ) {
         PlaceChild(control);
         control->RecalculateChildrenRecursive();
     }
@@ -326,6 +356,5 @@ void Control::PlaceChild(shared_ptr<Control> child) const {
             break;
         default:
             break;
-
     }
 }

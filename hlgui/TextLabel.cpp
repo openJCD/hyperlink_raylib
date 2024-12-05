@@ -4,9 +4,6 @@
 
 #include "TextLabel.h"
 
-#include <iostream>
-#include <ostream>
-
 void TextLabel::Draw() {
     Control::Draw();
     Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);

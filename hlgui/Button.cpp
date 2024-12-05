@@ -4,9 +4,8 @@
 
 #include "Button.h"
 
-#include <iostream>
+#include <utility>
 #include "gui_structs.h"
-#include <ostream>
 
 void Button::OnMouseEnter() {  }
 void Button::OnMouseLeave() {  }
@@ -30,8 +29,7 @@ void Button::Update(float gameTime) {
     _wasHovered = IsHovered;
     _wasClicked = IsClicked;
 }
-
-Button::Button(const char *text, void (*onclick)(hl_ButtonEventArgs), hl_AnchorType anchor): TextLabel(text, anchor) {
+Button::Button(const char *text, std::function<void(hl_ButtonEventArgs)>& onclick, hl_AnchorType anchor): TextLabel(text, anchor) {
     _debug_string = "Button_'" + string(text) + "'";
     m_StyleProperties = ResourceManager::GetStyle("button");
     m_StyleProperties_Hovered = ResourceManager::GetStyle("buttonHovered");
