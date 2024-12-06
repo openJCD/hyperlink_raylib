@@ -10,8 +10,8 @@ void OsProgram::OnShutdown() { }
 void OsProgram::OnUpdate() { }
 void OsProgram::CreateWindow(shared_ptr<GuiScene> gui) {
     gui->Begin();
-    gui->BeginWindow(m_name.c_str(), 200,200,ANCHOR_CENTER);
-    gui->CreateButton("Hello World",nullptr, ANCHOR_BOTTOM_RIGHT);
+    gui->BeginWindow(m_name.c_str(), 200,200);
+    gui->CreateButton("Hello World",nullptr);
     gui->EndWindow();
     gui->End();
 }

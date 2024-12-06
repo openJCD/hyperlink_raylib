@@ -54,6 +54,8 @@ protected:
 public:
     virtual  ~Control();
 
+    Control(short w, short h);
+
     /*ctor*/ Control(short w, short h, hl_AnchorType anchor);
     explicit Control(hl_AnchorType anchor);
 

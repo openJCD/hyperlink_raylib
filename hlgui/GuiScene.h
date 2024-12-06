@@ -95,9 +95,9 @@ public:
         return myself;
     }
 
-    void BeginWindow(const char* title, short w, short h, hl_AnchorType anchor);
+    void BeginWindow(const char *title, short w, short h);
     shared_ptr<WindowControl> EndWindow();
-    shared_ptr<Button> CreateButton(const char *text, std::function<void(hl_ButtonEventArgs)> onclick, hl_AnchorType anchor);
+    shared_ptr<Button> CreateButton(const char *text, std::function<void(hl_ButtonEventArgs)> onclick);
 };
 
 #endif //GUISCENE_H

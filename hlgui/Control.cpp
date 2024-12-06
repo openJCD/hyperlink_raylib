@@ -8,10 +8,15 @@
 #include <ranges>
 
 using std::list, std::shared_ptr, std::to_string, std::make_shared;
-Control::Control(short w, short h, const hl_AnchorType anchor = ANCHOR_TOP_LEFT) {
+Control::Control(short w, short h) {
+    m_Anchor = ANCHOR_AUTO;
+    m_Bounds = Rectangle(0,0,w,h);
+    _debug_string = "Control_ANCHOR_AUTO_" + to_string(w) + "_" + to_string(h);
+}
+Control::Control(short w, short h, const hl_AnchorType anchor) {
     m_Anchor = anchor;
     m_Bounds = Rectangle(0,0,w,h);
-    _debug_string = "Control_" + to_string(anchor) + "_" + to_string(w) + "_" + to_string(h);
+    _debug_string = "Control_MANUAL_ANCHOR_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(hl_AnchorType anchor) {
     m_Anchor = anchor;
@@ -158,7 +163,7 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
 Control* Control::Add (shared_ptr<Control> child) {
     m_Children.push_back(child);
     child->m_Parent = this;
-    Layout({});
+    Layout();
     return this;
 }
 Control* Control:: Remove(shared_ptr<Control> child) {
@@ -291,6 +296,7 @@ Control * Control::SetClickAction(std::function<void(hl_ButtonEventArgs)> func){
 
 Control * Control::SetLayoutDirection(hl_GuiLayoutType type) {
     m_layoutType = type;
+    Layout();
     return this;
 }
 
@@ -321,9 +327,8 @@ void Control::Layout() {
 
     std::vector<shared_ptr<Control>> childrenByAnchor[10];
     for (auto &control: m_Children) {
-        childrenByAnchor[control->GetAnchor()].emplace_back(control); // sort each child by anchor.
+        childrenByAnchor[(int)control->GetAnchor()].emplace_back(control); // sort each child by anchor.
     }
-
     if (m_Parent != nullptr) {
         switch (m_Anchor) {
             case ANCHOR_TOP_LEFT:
@@ -355,7 +360,7 @@ void Control::Layout() {
                 m_LocalPosition.y = (m_Parent->m_Bounds.height - m_StyleProperties.padding.y);
                 break;
             case ANCHOR_BOTTOM:
-                m_LocalPosition.x = (m_Parent->m_Bounds.width - m_Bounds.width/2);
+                m_LocalPosition.x = (m_Parent->m_Bounds.width/2 - m_Bounds.width/2);
                 m_LocalPosition.y = (m_Parent->m_Bounds.height - m_Bounds.height - m_StyleProperties.padding.y);
                 break;
             case ANCHOR_BOTTOM_RIGHT:
@@ -368,20 +373,21 @@ void Control::Layout() {
         }
     }
     for (auto &child_auto: childrenByAnchor[9]) {
-        layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
-        layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
+        if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
+            layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
+            layout.cursor_position.y = child_auto->m_StyleProperties.padding.y;
+        } else {
+            layout.cursor_position.x = child_auto->m_StyleProperties.padding.x;
+            layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
+        }
         child_auto->m_LocalPosition = layout.cursor_position;
         if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
             layout.cursor_position.x += child_auto->m_Bounds.width;
         } else {
             layout.cursor_position.y += child_auto->m_Bounds.height;
         }
-        if (childrenByAnchor[9].back() == child_auto) {
-            if (m_Parent != nullptr) {
-                m_Bounds.width += layout.cursor_position.x + child_auto->m_StyleProperties.padding.x + child_auto->m_Bounds.width;
-                m_Bounds.height += layout.cursor_position.y + child_auto->m_StyleProperties.padding.y + child_auto->m_Bounds.height;
-            }
-        }
     }
-
+    for (auto &child: m_Children) {
+        child->Layout();
+    }
 }
