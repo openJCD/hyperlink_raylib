@@ -20,14 +20,14 @@ void TextLabel::RecalculateBounds() {
     m_Bounds = Rectangle(m_Bounds.x, m_Bounds.y, textSize.x+m_StyleProperties.margin.x*2, textSize.y+m_StyleProperties.margin.y);
 }
 
-TextLabel::TextLabel(Font &font, const char* text, hl_AnchorType anchor): Control(anchor) {
+TextLabel::TextLabel(Font &font, const char* text) {
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
     m_font = font;
     Control::SetStyle(ResourceManager::GetStyle("textLabel"));
     TextLabel::RecalculateBounds();
 }
-TextLabel::TextLabel(const char* text, hl_AnchorType anchor): Control(anchor) {
+TextLabel::TextLabel(const char* text) {
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
     Control::SetStyle(ResourceManager::GetStyle("textLabel"));

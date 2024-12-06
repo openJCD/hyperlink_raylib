@@ -25,6 +25,9 @@ private:
     // Gui Creation Functions //
     void _create_menu(hl_ButtonEventArgs args);
     void _close_menu(hl_ButtonEventArgs args);
+
+    void _quit_game(hl_ButtonEventArgs args);
+
 public:
     CcOS(short screenWidth, short screenHeight);
     shared_ptr<Control> GetRootGuiControl();

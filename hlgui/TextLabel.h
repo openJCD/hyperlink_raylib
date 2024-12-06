@@ -12,11 +12,12 @@ class TextLabel : public Control {
 protected:
     void Draw() override;
     string m_text = "Label";
+    hl_AnchorType m_Anchor = ANCHOR_AUTO;
     Font& m_font = ResourceManager::GetDefaultFont();
     void RecalculateBounds() override;
 public:
-    TextLabel(Font &font, const char* text, hl_AnchorType anchor);
-    TextLabel(const char *text, hl_AnchorType anchor);
+    TextLabel(Font &font, const char* text);
+    TextLabel(const char *text);
     ~TextLabel() override;
     void Update(float gameTime) override;
     TextLabel *SetText(const char* text);

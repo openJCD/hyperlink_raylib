@@ -12,6 +12,15 @@ void GuiScene::_gui_incrememtCurrentChildCount() {
     }
 }
 
+stack<shared_ptr<Control>> GuiScene::_gui_reverseSomeOfStackUntil(int count) {
+    stack<shared_ptr<Control>> stack_return;
+    for (int i = 0; i < count; i++) {
+        stack_return.push(controlStack.top());
+        controlStack.pop();
+    }
+    return stack_return;
+}
+
 void GuiScene::Begin(short windowWidth, short windowHeight) {
     rootControlPtr = make_shared<Control>(windowWidth, windowHeight, ANCHOR_TOP_LEFT);
     controlStorageList.push_front(*rootControlPtr);
@@ -43,45 +52,11 @@ shared_ptr<Control> GuiScene::End() {
     }
     return rootControlPtr;
 }
-
-shared_ptr<Control> GuiScene::CreateControl(short w, short h, hl_AnchorType anchor) {
-    _gui_incrememtCurrentChildCount();
-    shared_ptr<Control> control = make_shared<Control>(w, h, anchor);
-
-    controlStorageList.push_back(*control);
-    controlStack.push(control);
-    return control;
-}
-
-void GuiScene::BeginControl(short w, short h, hl_AnchorType anchor) {
-    _gui_incrememtCurrentChildCount();
-    controlChildCountStack.push(0);
-
-    shared_ptr<Control> control = make_shared<Control>(w, h, anchor);
-    controlStorageList.push_back(*control);
-    controlStack.push(control);
-}
-
-shared_ptr<Control> GuiScene::EndControl() {
-    list<shared_ptr<Control>> ptrsToAdd;
-    for (int i=0; i<controlChildCountStack.top(); i++) {
-        shared_ptr<Control> control = controlStack.top();
-        ptrsToAdd.push_back(control);
-        controlStack.pop();
-    }
-    controlChildCountStack.pop();
-    auto myself = controlStack.top();
-    for (const auto& ptr: ptrsToAdd) {
-        myself->Add(ptr);
-    }
-    return myself;
-}
-
 void GuiScene::BeginWindow(const char *title, short w, short h, hl_AnchorType anchor) {
     _gui_incrememtCurrentChildCount();
     controlChildCountStack.push(0);
 
-    shared_ptr<WindowControl> control = make_shared<WindowControl>(w, h, anchor);
+    shared_ptr<WindowControl> control = make_shared<WindowControl>(title, w, h, anchor);
     windowControlStorageList.push_back(*control);
     control->SetTitle(title);
     controlStack.push(control);

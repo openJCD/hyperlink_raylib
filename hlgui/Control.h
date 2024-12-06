@@ -28,8 +28,11 @@ protected:
     Vector2 m_LocalPosition{0,0};
 
     hl_AnchorType m_Anchor = ANCHOR_TOP_LEFT;
+
     hl_StyleProperties m_StyleProperties = ResourceManager::GetDefaultStyle();
+
     list<shared_ptr<Control>> m_Children;
+
     Control* m_Parent = nullptr;
 
     bool IsHovered = false;
@@ -39,19 +42,23 @@ protected:
     bool IsEnabled = true;
     void UpdatePos();
 
+    hl_GuiLayoutType m_layoutType = GUI_LAYOUT_VERTICAL;
+
     virtual void DoClick(MouseMask mask, MouseButton button);
     std::function<void(hl_ButtonEventArgs)> OnClick = nullptr;
 
     virtual void Draw();
     virtual void Update(float gameTime);
-    void         PlaceChild(shared_ptr<Control> child) const;
-    void         RecalculateChildrenRecursive() const;
+    void         Layout();
     virtual void RecalculateBounds();
 public:
     virtual  ~Control();
 
     /*ctor*/ Control(short w, short h, hl_AnchorType anchor);
     explicit Control(hl_AnchorType anchor);
+
+    Control();
+
     /// When I am hovered, check through children to see which is under mouse hover.
     /// Returns true if root is hovered, false if the rest of the UI is hovered.
     /// Use to block clicks to the game world in main loop.
@@ -90,7 +97,7 @@ public:
     Control* EnableDragging(Rectangle localDragZone);
     Control* SetMargin(int horizontal, int vertical);
     Control* SetClickAction(std::function<void(hl_ButtonEventArgs)> func);
-
+    Control* SetLayoutDirection(hl_GuiLayoutType type);
     [[nodiscard]] string   GetDebugString();
     [[nodiscard]] Rectangle GetBounds() const;
     [[nodiscard]] hl_StyleProperties GetStyleProperties() const;

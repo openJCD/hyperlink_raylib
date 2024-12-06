@@ -12,7 +12,7 @@ protected:
     hl_StyleProperties m_StyleProperties = ResourceManager::GetStyle("window");
     void Draw() override;
 public:
-    WindowControl(short w, short h, hl_AnchorType startAnchor);
+    WindowControl(const char* title, short w, short h, hl_AnchorType startAnchor);
     Control* Add(shared_ptr<Control> child) override;
     WindowControl* SetTitle(const char* title);
     ~WindowControl() override;
