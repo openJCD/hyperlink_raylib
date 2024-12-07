@@ -14,17 +14,17 @@ void Button::Update(float gameTime) {
     TextLabel::Update(gameTime);
     if (IsClicked and !_wasClicked and IsHovered) {
         m_StyleProperties = m_StyleProperties_Clicked;
-        RecalculateBounds();
+        Layout();
     } else if (!IsClicked and _wasClicked) {
         m_StyleProperties = m_StyleProperties_Hovered;
-        RecalculateBounds();
+        Layout();
     }
     if (IsHovered and !_wasHovered && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         m_StyleProperties = m_StyleProperties_Hovered;
-        RecalculateBounds();
+        Layout();
     } else if (!IsHovered and _wasHovered) {
         m_StyleProperties = m_StyleProperties_Default;
-        RecalculateBounds();
+        Layout();
     }
     _wasHovered = IsHovered;
     _wasClicked = IsClicked;
@@ -50,5 +50,6 @@ Button * Button::SetClickedStyle(hl_StyleProperties style) {
 Button* Button::SetStyle(hl_StyleProperties style) {
     m_StyleProperties = style;
     m_StyleProperties_Default = style;
+    Layout();
     return this;
 }

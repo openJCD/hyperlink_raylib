@@ -64,6 +64,10 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgame/os/OsProgram.h
         hlgui/GuiScene.cpp
         hlgui/GuiScene.h
+        hlgame/os/MarketplaceApp.cpp
+        hlgame/os/MarketplaceApp.h
+        hlgui/ListBox.cpp
+        hlgui/ListBox.h
 )
 # copy resources directory to build directory
 add_custom_command(

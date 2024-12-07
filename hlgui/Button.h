@@ -14,6 +14,7 @@ protected:
 
     bool _wasHovered = false;
     bool _wasClicked = false;
+
     virtual void OnMouseEnter();
     virtual void OnMouseLeave();
     void Update(float gameTime) override;
@@ -23,6 +24,7 @@ public:
     Button* SetHoveredStyle(hl_StyleProperties style);
     Button* SetClickedStyle(hl_StyleProperties style);
     Button* SetStyle(hl_StyleProperties style) override;
+
 };
 
 #endif //BUTTON_H

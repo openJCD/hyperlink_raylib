@@ -14,24 +14,26 @@ void TextLabel::Draw() {
     DrawTextEx(m_font, m_text.c_str(), Vector2(textx, texty), m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
 }
 
-void TextLabel::RecalculateBounds() {
-    Control::RecalculateBounds();
+void TextLabel::Layout() {
     Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
     m_Bounds = Rectangle(m_Bounds.x, m_Bounds.y, textSize.x+m_StyleProperties.margin.x*2, textSize.y+m_StyleProperties.margin.y);
+    Control::Layout();
 }
 
-TextLabel::TextLabel(Font &font, const char* text) {
+TextLabel::TextLabel(Font &font, const char* text) : Control() {
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
     m_font = font;
     Control::SetStyle(ResourceManager::GetStyle("textLabel"));
-    TextLabel::RecalculateBounds();
+    Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
+    m_Bounds = Rectangle(m_Bounds.x, m_Bounds.y, textSize.x+m_StyleProperties.margin.x*2, textSize.y+m_StyleProperties.margin.y);
 }
-TextLabel::TextLabel(const char* text) {
+TextLabel::TextLabel(const char* text) : Control() {
     m_text = text;
     _debug_string = "TextLabel_'" + string(text) + "'";
     Control::SetStyle(ResourceManager::GetStyle("textLabel"));
-    TextLabel::RecalculateBounds();
+    Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
+    m_Bounds = Rectangle(m_Bounds.x, m_Bounds.y, textSize.x+m_StyleProperties.margin.x*2, textSize.y+m_StyleProperties.margin.y);
 }
 TextLabel::~TextLabel() {
     m_text.clear();

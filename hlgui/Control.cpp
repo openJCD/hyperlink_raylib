@@ -55,7 +55,7 @@ void Control :: UpdatePos() {
     m_DragBounds.x += m_Bounds.x;
     m_DragBounds.y += m_Bounds.y;
     if (IsWindowResized() && m_Parent == nullptr) { // check this frame if window was resized. if it was, update the anchors of every element.
-        Layout();
+        BaseLayout();
     }
 }
 
@@ -65,17 +65,24 @@ void Control::BaseDraw() {
     for (auto &element: m_Children) {
         element->BaseDraw();
     }
+    if (_wasHovered && !m_Tooltip.empty()) {
+        Vector2 tooltipSize = MeasureTextEx(m_tooltipFont, m_Tooltip.c_str(), m_StyleProperties.font_size, 1);
+        DrawRectangle(GetMouseX(), GetMouseY(), tooltipSize.x + 5, tooltipSize.y+5,
+            ColorAlpha(m_StyleProperties.background_color, 255.0f));
+        DrawTextEx(m_tooltipFont, m_Tooltip.c_str(), (Vector2){GetMouseX()+5.0f, GetMouseY()+5.0f}, m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
+    }
+    PostDraw();
 }
 void Control::BaseUpdate(float gameTime) {
-    if (!IsEnabled) return;
     UpdatePos();
     if (m_Parent != nullptr) {
         m_StyleProperties.opacity = 1;
-        m_StyleProperties.opacity += m_Parent->GetStyleProperties().opacity;
-        m_StyleProperties.background_color = ColorAlpha(m_StyleProperties.background_color, m_StyleProperties.opacity);
-        m_StyleProperties.border_color = ColorAlpha(m_StyleProperties.border_color, m_StyleProperties.opacity);
-        m_StyleProperties.foreground_color = ColorAlpha(m_StyleProperties.foreground_color, m_StyleProperties.opacity);
+        m_StyleProperties.opacity *= m_Parent->GetStyleProperties().opacity;
+        m_StyleProperties.background_color.a *= m_StyleProperties.opacity;
+        m_StyleProperties.border_color.a *= m_StyleProperties.opacity;
+        m_StyleProperties.foreground_color.a *= m_StyleProperties.opacity;
     }
+    if (!IsEnabled || !IsActive) return;
     if (IsDragged) {
         m_LocalPosition.x += GetMouseDelta().x;
         m_LocalPosition.y += GetMouseDelta().y;
@@ -115,7 +122,7 @@ void Control::BaseUpdate(float gameTime) {
 }
 
 bool Control::CheckMouse(Vector2 mousePos) {
-    if (!IsEnabled) return false;
+    if (!IsEnabled || !IsActive) return false;
     if (CheckCollisionPointRec(mousePos, m_Bounds)) {
         if (CheckCollisionPointRec(mousePos, m_DragBounds)) {
             IsHovered=true;
@@ -126,7 +133,9 @@ bool Control::CheckMouse(Vector2 mousePos) {
         } else {
             for (auto &control : std::ranges::reverse_view(m_Children))
             {
-                if (CheckCollisionPointRec(mousePos, control->m_Bounds)) {
+                // 'CaptureMouse' flag allows for some widgets to let their parent remain hovered when they would normally
+                // capture the mouse hover.
+                if (CheckCollisionPointRec(mousePos, control->m_Bounds) && control->CaptureMouse) {
                     control->CheckMouse(mousePos);
                     IsHovered = false;
                     return false;
@@ -163,7 +172,7 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
 Control* Control::Add (shared_ptr<Control> child) {
     m_Children.push_back(child);
     child->m_Parent = this;
-    Layout();
+    BaseLayout();
     return this;
 }
 Control* Control:: Remove(shared_ptr<Control> child) {
@@ -189,6 +198,9 @@ void Control::Draw() {
         DrawRectangleLinesEx(m_Bounds, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
     }
 }
+
+void Control::PostDraw() { }
+
 Control::~Control() {
     m_Children.clear();
 }
@@ -230,7 +242,7 @@ Control * Control::SetColor(Color color) {
 
 Control *Control::SetHeight(float height) {
     m_Bounds.height = height;
-    Layout();
+    BaseLayout();
     return this;
 }
 
@@ -239,7 +251,10 @@ Control * Control::SetSize(float w, float h) {
     SetWidth(w);
     return this;
 }
-
+Control * Control::SetLocalPos(int x, int y) {
+    m_LocalPosition = Vector2(x, y);
+    return this;
+}
 Control * Control::FillParentWidth() {
     m_StyleProperties.fill_parent_w = true;
     return this;
@@ -252,7 +267,7 @@ Control * Control::FillParentHeight() {
 
 Control *Control::SetWidth(float width) {
     m_Bounds.width = width;
-    Layout();
+    BaseLayout();
     return this;
 }
 Control *Control::SetPadding(short horizontal, short vertical) {
@@ -290,13 +305,28 @@ Control *Control::SetMargin(int horizontal, int vertical) {
 
 Control * Control::SetClickAction(std::function<void(hl_ButtonEventArgs)> func){
     OnClick = func;
-    LOG("Set click action for " + _debug_string);
+    GUI_LOG("Set click action for " + _debug_string);
     return this;
 }
 
 Control * Control::SetLayoutDirection(hl_GuiLayoutType type) {
     m_layoutType = type;
-    Layout();
+    BaseLayout();
+    return this;
+}
+
+Control * Control::SetTooltip(const char *tip) {
+    m_Tooltip = tip;
+    return this;
+}
+
+Control * Control::SetTag(const char *tag) {
+    m_Tag = tag;
+    return this;
+}
+
+Control * Control::DisableMouseCapture() {
+    CaptureMouse = false;
     return this;
 }
 
@@ -316,10 +346,23 @@ hl_AnchorType Control::GetAnchor() const {
     return m_Anchor;
 }
 
-void Control::RecalculateBounds() {}
+string Control::GetTag() const {
+    return m_Tag;
+}
 
 Control * Control::SetMargin(short x, short y) {
     m_StyleProperties.margin = Vector2(x, y);
+    return this;
+}
+
+Control* Control::Deactivate() {
+    IsActive = false;
+    m_StyleProperties.opacity *= 0.5f;
+    return this;
+}
+Control* Control::Activate() {
+    IsActive = true;
+    m_StyleProperties.opacity = 1.0f;
     return this;
 }
 void Control::Layout() {
@@ -329,6 +372,25 @@ void Control::Layout() {
     for (auto &control: m_Children) {
         childrenByAnchor[(int)control->GetAnchor()].emplace_back(control); // sort each child by anchor.
     }
+
+    for (auto &child_auto: childrenByAnchor[9]) {
+        if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
+            layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
+            layout.cursor_position.y  = child_auto->m_StyleProperties.padding.y;
+        } else {
+            layout.cursor_position.x = child_auto->m_StyleProperties.padding.x;
+            layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
+        }
+        child_auto->m_LocalPosition = layout.cursor_position;
+        if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
+            layout.cursor_position.x += child_auto->m_Bounds.width;
+        } else {
+            layout.cursor_position.y += child_auto->m_Bounds.height;
+        }
+    }
+}
+
+void Control::BaseLayout() {
     if (m_Parent != nullptr) {
         switch (m_Anchor) {
             case ANCHOR_TOP_LEFT:
@@ -336,7 +398,7 @@ void Control::Layout() {
                 m_LocalPosition.y = m_StyleProperties.padding.y;
                 break;
             case ANCHOR_TOP:
-                m_LocalPosition.x = (m_Parent->m_Bounds.width - m_Bounds.width/2);
+                m_LocalPosition.x = (m_Parent->m_Bounds.width/2 - m_Bounds.width/2);
                 m_LocalPosition.y = m_StyleProperties.padding.y;
                 break;
             case ANCHOR_TOP_RIGHT:
@@ -345,15 +407,15 @@ void Control::Layout() {
                 break;
             case ANCHOR_LEFT:
                 m_LocalPosition.x = m_StyleProperties.padding.x;
-                m_LocalPosition.y = (m_Parent->m_Bounds.height - m_Bounds.height/2);
+                m_LocalPosition.y = (m_Parent->m_Bounds.height/2 - m_Bounds.height/2);
                 break;
             case ANCHOR_CENTER:
-                m_LocalPosition.x = (m_Parent->m_Bounds.width - m_Bounds.width/2);
-                m_LocalPosition.y = (m_Parent->m_Bounds.height - m_Bounds.height/2);
+                m_LocalPosition.x = (m_Parent->m_Bounds.width/2 - m_Bounds.width/2);
+                m_LocalPosition.y = (m_Parent->m_Bounds.height/2 - m_Bounds.height/2);
                 break;
             case ANCHOR_RIGHT:
                 m_LocalPosition.x = (m_Parent->m_Bounds.width - m_Bounds.width - m_StyleProperties.padding.x);
-                m_LocalPosition.y = (m_Parent->m_Bounds.height - m_Bounds.height/2);
+                m_LocalPosition.y = (m_Parent->m_Bounds.height/2 - m_Bounds.height/2);
                 break;
             case ANCHOR_BOTTOM_LEFT:
                 m_LocalPosition.x = (m_StyleProperties.padding.x);
@@ -368,26 +430,11 @@ void Control::Layout() {
                 m_LocalPosition.y = (m_Parent->m_Bounds.height - m_Bounds.height - m_StyleProperties.padding.y);
                 break;
             case ANCHOR_AUTO:
-                LOG("This control was auto-anchored");
                 break;
         }
     }
-    for (auto &child_auto: childrenByAnchor[9]) {
-        if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
-            layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
-            layout.cursor_position.y = child_auto->m_StyleProperties.padding.y;
-        } else {
-            layout.cursor_position.x = child_auto->m_StyleProperties.padding.x;
-            layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
-        }
-        child_auto->m_LocalPosition = layout.cursor_position;
-        if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
-            layout.cursor_position.x += child_auto->m_Bounds.width;
-        } else {
-            layout.cursor_position.y += child_auto->m_Bounds.height;
-        }
-    }
+    Layout();
     for (auto &child: m_Children) {
-        child->Layout();
+        child->BaseLayout();
     }
 }

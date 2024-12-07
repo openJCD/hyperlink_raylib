@@ -11,10 +11,8 @@ protected:
     TextLabel m_titleLabel = TextLabel("Window");
     Control m_innerControl = Control();
     hl_StyleProperties m_StyleProperties = ResourceManager::GetStyle("window");
-    void Draw() override;
 public:
     WindowControl(const char* title, short w, short h);
-    Control* Add(shared_ptr<Control> child) override;
     WindowControl* SetTitle(const char* title);
     ~WindowControl() override;
 };

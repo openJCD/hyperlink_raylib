@@ -14,7 +14,7 @@ protected:
     string m_text = "Label";
     hl_AnchorType m_Anchor = ANCHOR_AUTO;
     Font& m_font = ResourceManager::GetDefaultFont();
-    void RecalculateBounds() override;
+    void Layout() override;
 public:
     TextLabel(Font &font, const char* text);
     TextLabel(const char *text);

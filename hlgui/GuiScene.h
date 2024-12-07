@@ -12,6 +12,7 @@
 #include "TextLabel.h"
 #include "Button.h"
 #include "gui_structs.h"
+#include "ListBox.h"
 using std::list, std::stack, std::make_shared;
 
 class GuiScene {
@@ -70,7 +71,7 @@ public:
         controlChildCountStack.push(0);
 
         shared_ptr<ControlType> control = make_shared<ControlType>(args...);
-        controlStorageList.push_back(*control);
+        controlStorageList.emplace_back(*control);
         controlStack.push(control);
     }
 

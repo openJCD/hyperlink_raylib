@@ -27,11 +27,11 @@ private:
     void _close_menu(hl_ButtonEventArgs args);
 
     void _quit_game(hl_ButtonEventArgs args);
-
 public:
     CcOS(short screenWidth, short screenHeight);
     shared_ptr<Control> GetRootGuiControl();
     shared_ptr<GuiScene> GetGuiScene();
+    void LaunchProgram(shared_ptr<OsProgram> program);
 };
 
 #endif //HLOS_H

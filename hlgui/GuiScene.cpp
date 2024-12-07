@@ -79,7 +79,6 @@ shared_ptr<WindowControl> GuiScene::EndWindow() {
 shared_ptr<Button> GuiScene::CreateButton(const char *text, std::function<void(hl_ButtonEventArgs)> onclick) {
     _gui_incrememtCurrentChildCount();
     shared_ptr<Button> button = make_shared<Button>(text, onclick);
-
     buttonStorageList.push_back(*button);
     controlStack.push(button);
     return button;

@@ -18,7 +18,7 @@ void toggle_fullscreen(hl_ButtonEventArgs args) {
     } else {
         SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
     }
-    LOG("Toggled borderless window");
+    GUI_LOG("Toggled borderless window");
 }
 
 
@@ -35,6 +35,7 @@ int main() {
     GuiSetGlobalFont(LoadFont("resources/gui/fonts/JetBrainsMono-Regular.ttf"));
     GuiSetDefaultStyle(STYLE_HICONTRAST);
     GuiSetButtonStyle(STYLE_BUTTON_STATIC);
+    GuiSetTextLabelStyle(STYLE_TEXT_LABEL);
     CcOS ccos = CcOS(renderWidth, renderHeight);
     shared_ptr<Control> gui_root = ccos.GetRootGuiControl();
     while (!WindowShouldClose()) {

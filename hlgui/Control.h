@@ -19,6 +19,12 @@ class Control {
 protected:
     string _debug_string = "Control";
 
+    string m_Tag = "Control";
+
+    string m_Tooltip;
+
+    Font& m_tooltipFont = ResourceManager::GetFont("tooltip");
+
     Rectangle m_Bounds{0,0,0,0};
     /// the user-defined local draggable rectangle area.
     Rectangle m_DragZone{0,0,0,0};
@@ -39,7 +45,11 @@ protected:
     bool _wasHovered = false;
     bool IsClicked = false;
     bool IsDragged = false;
+
     bool IsEnabled = true;
+    bool IsActive = true;
+
+    bool CaptureMouse = true;
     void UpdatePos();
 
     hl_GuiLayoutType m_layoutType = GUI_LAYOUT_VERTICAL;
@@ -48,9 +58,12 @@ protected:
     std::function<void(hl_ButtonEventArgs)> OnClick = nullptr;
 
     virtual void Draw();
+    virtual void PostDraw();
+
     virtual void Update(float gameTime);
-    void         Layout();
-    virtual void RecalculateBounds();
+
+    virtual void Layout();
+    void         BaseLayout();
 public:
     virtual  ~Control();
 
@@ -68,8 +81,10 @@ public:
     /// Draw the control. Must be called between BeginDrawing and EndDrawing.
     /// Must be called on the root Control.
     void BaseDraw();
+
     /// Update the root Control's position, along with all children and so on.
     void     BaseUpdate(float gameTime);
+
     Control* SetAnchor(hl_AnchorType anchor);
     virtual Control* Add(shared_ptr<Control> child);
     Control* Remove(shared_ptr<Control> child);
@@ -100,10 +115,24 @@ public:
     Control* SetMargin(int horizontal, int vertical);
     Control* SetClickAction(std::function<void(hl_ButtonEventArgs)> func);
     Control* SetLayoutDirection(hl_GuiLayoutType type);
+
+
+    Control* Deactivate();
+
+    Control* Activate();
+
+    Control* SetTooltip(const char* tip);
+    Control* SetTag(const char* tag);
+
+    Control* DisableMouseCapture();
+
+    Control* SetLocalPos(int x, int y);
+
     [[nodiscard]] string   GetDebugString();
     [[nodiscard]] Rectangle GetBounds() const;
     [[nodiscard]] hl_StyleProperties GetStyleProperties() const;
     [[nodiscard]] hl_AnchorType GetAnchor() const;
+    [[nodiscard]] string GetTag() const;
 };
 
 inline Control * Control::SetOpacity(float opacity) {
