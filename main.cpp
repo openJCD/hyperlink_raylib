@@ -50,6 +50,7 @@ int main() {
         if (!gui_root->CheckMouse(GetMousePosition())) {
             map.UpdateMouse();
         }
+        ccos.Update();
         gui_root->BaseUpdate(GetFrameTime());
         BeginTextureMode(gui_render_texture);
         ClearBackground(TRANSPARENT);

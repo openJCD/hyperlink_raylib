@@ -32,6 +32,7 @@ public:
     shared_ptr<Control> GetRootGuiControl();
     shared_ptr<GuiScene> GetGuiScene();
     void LaunchProgram(shared_ptr<OsProgram> program);
+    void Update();
 };
 
 #endif //HLOS_H

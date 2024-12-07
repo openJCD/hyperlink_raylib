@@ -32,5 +32,7 @@ public:
     void CreateWindow(shared_ptr<GuiScene> gui) override;
 
     void ListApp(shared_ptr<OsProgram> program);
+
+    void OnUpdate() override;
 };
 #endif //MARKETPLACEAPP_H

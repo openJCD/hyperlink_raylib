@@ -356,13 +356,19 @@ Control * Control::SetMargin(short x, short y) {
 }
 
 Control* Control::Deactivate() {
+    m_StyleProperties.opacity = 200.0f;
+    m_StyleProperties.background_color.a=200.0f;
+    m_StyleProperties.foreground_color.a=200.0f;
+    m_StyleProperties.border_color.a= 200.0f;
     IsActive = false;
-    m_StyleProperties.opacity *= 0.5f;
     return this;
 }
 Control* Control::Activate() {
-    IsActive = true;
     m_StyleProperties.opacity = 1.0f;
+    m_StyleProperties.background_color.a=255.0f;
+    m_StyleProperties.foreground_color.a=255.0f;
+    m_StyleProperties.border_color.a= 255.0f;
+    IsActive = true;
     return this;
 }
 void Control::Layout() {

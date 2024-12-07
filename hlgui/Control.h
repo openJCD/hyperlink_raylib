@@ -116,9 +116,7 @@ public:
     Control* SetClickAction(std::function<void(hl_ButtonEventArgs)> func);
     Control* SetLayoutDirection(hl_GuiLayoutType type);
 
-
     Control* Deactivate();
-
     Control* Activate();
 
     Control* SetTooltip(const char* tip);

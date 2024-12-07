@@ -27,10 +27,6 @@ private:
 
     // owned list of control objects
     list<Control> controlStorageList;
-    // owned list of window controls
-    list<WindowControl> windowControlStorageList;
-    // owned list of text labels
-    list<TextLabel> textLabelStorageList;
     // owned list of buttons
     list<Button> buttonStorageList;
     // shared pointer to the root control of the interface
@@ -95,10 +91,6 @@ public:
         }
         return myself;
     }
-
-    void BeginWindow(const char *title, short w, short h);
-    shared_ptr<WindowControl> EndWindow();
-    shared_ptr<Button> CreateButton(const char *text, std::function<void(hl_ButtonEventArgs)> onclick);
 };
 
 #endif //GUISCENE_H

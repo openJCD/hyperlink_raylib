@@ -12,8 +12,6 @@ void MarketplaceApp::_purchase_software(hl_ButtonEventArgs args) {
         GAME_LOG("Sold " + m_selectedApp->GetName());
 
         m_selectedApp->SetPurchased(false);
-        btn_Upgrade->Deactivate();
-        btn_Downgrade->Deactivate();
         btn_BuySell->SetText("Buy");
     } else {
         GAME_LOG("Bought " + m_selectedApp->GetName());
@@ -30,10 +28,8 @@ void MarketplaceApp::_upgrade_software(hl_ButtonEventArgs args) {
     GAME_LOG("Upgraded " + m_selectedApp->GetName() + " to level " + std::to_string(m_selectedApp->GetUpgradeLevel()+1));
     if (m_selectedApp->IsPurchased()) {
         m_selectedApp->Upgrade();
-        btn_Downgrade->Activate();
         if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_3) {
             GAME_LOG("At max upgrade level.");
-            btn_Upgrade->Deactivate();
         }
     }
 }
@@ -43,10 +39,8 @@ void MarketplaceApp::_downgrade_software(hl_ButtonEventArgs args) {
     if (m_selectedApp == nullptr) { return; }
     GAME_LOG("Downgraded " + m_selectedApp->GetName() + " to level " + std::to_string(m_selectedApp->GetUpgradeLevel()-1));
     m_selectedApp->Downgrade();
-    btn_Upgrade->Activate();
     if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_BASE) {
         GAME_LOG("At minimum level.");
-        btn_Downgrade->Deactivate();
     }
 }
 
@@ -57,18 +51,9 @@ void MarketplaceApp::_select_app(Control* item) {
         if (m_selectedApp == nullptr) {
             return;
         } else {
-            // the following checks are mostly just for basic UX.
-            // if this app is already purchased, set the text to "sell", otherwise "buy".
-            // if it is not already at max upgrade, activate "upgrade" button
-            // if it is not at minimum upgrade level, activate "downgrade" button
             if (m_selectedApp->IsPurchased()) {
                 btn_BuySell->SetText("Sell")->Activate();
-                if (m_selectedApp->GetUpgradeLevel() != PROGRAM_LEVEL_3) {
-                    btn_Upgrade->Activate();
-                }
-                if (m_selectedApp->GetUpgradeLevel() != PROGRAM_LEVEL_BASE) {
-                    btn_Downgrade->Activate();
-                }
+
             } else {
                 btn_BuySell->SetText("Buy")->Activate();
                 btn_Upgrade->Deactivate();
@@ -108,4 +93,26 @@ void MarketplaceApp::CreateWindow(shared_ptr<GuiScene> gui) {
 
 void MarketplaceApp::ListApp(shared_ptr<OsProgram> program) {
     m_purchasableApps[program->GetName()] = program;
+}
+void MarketplaceApp::OnUpdate() {
+    OsProgram::OnUpdate();
+    if (m_selectedApp != nullptr) {
+        btn_BuySell->Activate();
+        btn_Upgrade->Activate();
+        btn_Downgrade->Activate();
+        if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_BASE) {
+            btn_Downgrade->Deactivate();
+        }
+        if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_3) {
+            btn_Upgrade->Deactivate();
+        }
+        if (!m_selectedApp->IsPurchased()) {
+            btn_Upgrade->Deactivate();
+            btn_Downgrade->Deactivate();
+        }
+    } else {
+        btn_BuySell->Deactivate();
+        btn_Upgrade->Deactivate();
+        btn_Downgrade->Deactivate();
+    }
 }

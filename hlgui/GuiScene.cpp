@@ -52,35 +52,3 @@ shared_ptr<Control> GuiScene::End() {
     }
     return rootControlPtr;
 }
-void GuiScene::BeginWindow(const char *title, short w, short h) {
-    _gui_incrememtCurrentChildCount();
-    controlChildCountStack.push(0);
-
-    shared_ptr<WindowControl> control = make_shared<WindowControl>(title, w, h);
-    windowControlStorageList.push_back(*control);
-    control->SetTitle(title);
-    controlStack.push(control);
-}
-
-shared_ptr<WindowControl> GuiScene::EndWindow() {
-    list<shared_ptr<Control>> ptrsToAdd;
-    for (int i=0; i<controlChildCountStack.top(); i++) {
-        shared_ptr<Control> control = controlStack.top();
-        ptrsToAdd.push_back(control);
-        controlStack.pop();
-    }
-    controlChildCountStack.pop();
-    shared_ptr<WindowControl> myself = std::dynamic_pointer_cast<WindowControl>(controlStack.top());
-    for (const auto& ptr: ptrsToAdd) {
-        myself->Add(ptr);
-    }
-    return myself;
-}
-shared_ptr<Button> GuiScene::CreateButton(const char *text, std::function<void(hl_ButtonEventArgs)> onclick) {
-    _gui_incrememtCurrentChildCount();
-    shared_ptr<Button> button = make_shared<Button>(text, onclick);
-    buttonStorageList.push_back(*button);
-    controlStack.push(button);
-    return button;
-}
-

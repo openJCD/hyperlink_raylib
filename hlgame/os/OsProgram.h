@@ -30,6 +30,7 @@ class OsProgram {
     float m_minRequiredMemory = 1.0f;
     bool m_isRunning = false;
     bool m_isPurchased = false;
+    void _null_callback(hl_ButtonEventArgs args) {}
 public:
     virtual ~OsProgram() = default;
     OsProgram(const char* name, float minMemoryRequired, const char* description = "CcOS Program Executable", int baseCost = 0)
