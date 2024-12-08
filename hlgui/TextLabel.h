@@ -17,7 +17,7 @@ protected:
     void Layout() override;
 public:
     TextLabel(Font &font, const char* text);
-    TextLabel(const char *text);
+    explicit TextLabel(const char *text);
     ~TextLabel() override;
     void Update(float gameTime) override;
     TextLabel *SetText(const char* text);

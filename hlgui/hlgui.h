@@ -13,6 +13,7 @@
 #include "TextLabel.h"
 #include "GuiScene.h"
 #include "gui_structs.h"
+#include "LargeTextBox.h"
 
 #define CREATE_BUTTON_MEMBER_CALLBACK(member_name, var_name) std::function<void(hl_ButtonEventArgs)> var_name = std::bind(member_name, this, std::placeholders::_1);
 #define CREATE_LIST_ITEM_MEMBER_CALLBACK(member_name, var_name) std::function<void(Control*)> var_name = std::bind(member_name, this, std::placeholders::_1);

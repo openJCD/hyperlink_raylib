@@ -6,6 +6,7 @@
 #include <list>
 #include <memory>
 #include <raylib.h>
+#include <rlgl.h>
 #include <string>
 
 #include "ResourceManager.h"
@@ -25,10 +26,14 @@ protected:
 
     Font& m_tooltipFont = ResourceManager::GetFont("tooltip");
 
+    RenderTexture2D m_renderTexture;
+
     Rectangle m_Bounds{0,0,0,0};
+
     /// the user-defined local draggable rectangle area.
     Rectangle m_DragZone{0,0,0,0};
-    /// the bounds to check the actual drag against.
+
+    /// the screen-space bounds to check the actual drag against.
     Rectangle m_DragBounds{0,0,0,0};
 
     Vector2 m_LocalPosition{0,0};
@@ -41,6 +46,9 @@ protected:
 
     Control* m_Parent = nullptr;
 
+    /// Flag is enabled whenever a change to this control occurs - for example, if the mouse is over it, it is clicked, etc.
+    bool Redraw = true;
+
     bool IsHovered = false;
     bool _wasHovered = false;
     bool IsClicked = false;
@@ -48,6 +56,9 @@ protected:
 
     bool IsEnabled = true;
     bool IsActive = true;
+
+    // ignore this when laying out controls.
+    bool IsFloating = false;
 
     bool CaptureMouse = true;
     void UpdatePos();
@@ -80,7 +91,7 @@ public:
     bool CheckMouse(Vector2 mousePos);
     /// Draw the control. Must be called between BeginDrawing and EndDrawing.
     /// Must be called on the root Control.
-    void BaseDraw();
+    RenderTexture2D BaseDraw();
 
     /// Update the root Control's position, along with all children and so on.
     void     BaseUpdate(float gameTime);
@@ -125,6 +136,8 @@ public:
     Control* DisableMouseCapture();
 
     Control* SetLocalPos(int x, int y);
+
+    void BringToTop(shared_ptr<Control> control);
 
     [[nodiscard]] string   GetDebugString();
     [[nodiscard]] Rectangle GetBounds() const;

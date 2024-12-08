@@ -10,8 +10,7 @@
 class FpsWidget  : public Control {
 protected:
     void Draw() override {
-        Control::Draw();
-        DrawFPS((int)m_Bounds.x, (int)(m_Bounds.y));
+        DrawFPS(0, 0);
     };
     void Update(float gameTime) override {
     }

@@ -1,7 +1,7 @@
 ﻿//
 // Created by openjcd on 05/12/2024.
 //
-
+#pragma once
 #ifndef GUISCENE_H
 #define GUISCENE_H
 #include <list>
@@ -13,6 +13,8 @@
 #include "Button.h"
 #include "gui_structs.h"
 #include "ListBox.h"
+#include "FpsWidget.h"
+#include "LargeTextBox.h"
 using std::list, std::stack, std::make_shared;
 
 class GuiScene {

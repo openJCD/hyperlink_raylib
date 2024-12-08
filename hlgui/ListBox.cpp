@@ -8,10 +8,9 @@
 
 void ListBox::Layout() {
     int cursorY = 0;
-    for (auto child: m_Children) {
+    for (auto &child: m_Children) {
         child->SetLocalPos(0, cursorY);
-        child->SetHeight(m_fixedItemHeight)->SetWidth(m_Bounds.width);
-        cursorY+=m_fixedItemHeight;
+        cursorY += child->GetBounds().height;
     }
 }
 
@@ -28,7 +27,7 @@ void ListBox::_item_select(hl_ButtonEventArgs args) {
     }
 }
 
-ListBox::ListBox(short width, short height, short fixedItemHeight) :Control(width, height), m_fixedItemHeight(fixedItemHeight) { }
+ListBox::ListBox(short width, short height) :Control(width, height) { }
 
 Control* ListBox::Add(shared_ptr<Control> element) {
     CREATE_BUTTON_MEMBER_CALLBACK(_item_select, f_item_select)

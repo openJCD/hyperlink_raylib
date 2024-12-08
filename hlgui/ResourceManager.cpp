@@ -5,7 +5,11 @@
 #include "ResourceManager.h"
 
 Font & ResourceManager::GetFont(const char *name) {
-    return res_Fonts[name];
+    if (!res_Fonts.contains(name)) {
+        return GetDefaultFont();
+    } else {
+        return res_Fonts[name];
+    }
 }
 
 Font & ResourceManager::GetDefaultFont() {
@@ -41,8 +45,10 @@ hl_StyleProperties ResourceManager::GetStyle(const char *name) {
 
 void ResourceManager::AddFont(const char *name, Font font) {
     res_Fonts[name] = font;
+    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_ANISOTROPIC_8X);
 }
 
 void ResourceManager::LoadFontAndAdd(const char *name, const char *path, short fontSize) {
     res_Fonts[name] = LoadFontEx(path, fontSize, NULL, NULL);
+    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_ANISOTROPIC_8X);
 }

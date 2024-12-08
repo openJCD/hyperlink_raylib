@@ -6,72 +6,105 @@
 #include <iostream>
 #include <ostream>
 #include <ranges>
+#include <bits/ranges_algo.h>
 
 using std::list, std::shared_ptr, std::to_string, std::make_shared;
 Control::Control(short w, short h) {
     m_Anchor = ANCHOR_AUTO;
     m_Bounds = Rectangle(0,0,w,h);
+    m_renderTexture = LoadRenderTexture(w, h);
     _debug_string = "Control_ANCHOR_AUTO_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(short w, short h, const hl_AnchorType anchor) {
     m_Anchor = anchor;
     m_Bounds = Rectangle(0,0,w,h);
+    m_renderTexture = LoadRenderTexture(w, h);
     _debug_string = "Control_MANUAL_ANCHOR_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(hl_AnchorType anchor) {
+    m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     m_Anchor = anchor;
     _debug_string = "Control_" + to_string(anchor) + "_autoSized";
 }
 
 Control::Control() {
     m_Anchor = ANCHOR_AUTO;
+    m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     _debug_string = "Control_ANCHOR_AUTO_autoSized";
 }
 Control* Control::SetAnchor(hl_AnchorType anchor) {
     m_Anchor = anchor;
+    Redraw = true;
     return this;
 }
 
 void Control :: Update(float gameTime) {}
 void Control :: UpdatePos() {
-
     m_Bounds.x = 0;
     m_Bounds.y = 0;
     m_DragBounds = m_DragZone;
     if (m_Parent != nullptr) {
-        if (m_StyleProperties.fill_parent_h) {
-            m_LocalPosition.y = m_StyleProperties.padding.y;
-            m_Bounds.height = m_Parent->m_Bounds.height - m_LocalPosition.y*2;
-        }
-        if (m_StyleProperties.fill_parent_w) {
-            m_LocalPosition.x = m_StyleProperties.padding.x;
-            m_Bounds.width = m_Parent->m_Bounds.width - m_LocalPosition.x*2;
-        }
         m_Bounds.x = m_Parent->m_Bounds.x + m_LocalPosition.x;
         m_Bounds.y = m_Parent->m_Bounds.y + m_LocalPosition.y;
     } else {
         m_Bounds = Rectangle {0,0,(float)GetRenderWidth(),(float)GetRenderHeight()};
     }
-    m_DragBounds.x += m_Bounds.x;
-    m_DragBounds.y += m_Bounds.y;
-    if (IsWindowResized() && m_Parent == nullptr) { // check this frame if window was resized. if it was, update the anchors of every element.
+    m_DragBounds.x = m_Bounds.x;
+    m_DragBounds.y = m_Bounds.y;
+    if (IsWindowResized() && m_Parent == nullptr){
+        // check this frame if window was resized. if it was, run the layout again.
         BaseLayout();
+        Redraw = true;
     }
 }
 
-void Control::BaseDraw() {
-    if (!IsEnabled) return;
-    Draw();
-    for (auto &element: m_Children) {
-        element->BaseDraw();
+RenderTexture2D Control::BaseDraw() {
+    if (!IsEnabled) {
+        BeginTextureMode(m_renderTexture);
+        ClearBackground(TRANSPARENT);
+        EndTextureMode();
+        return m_renderTexture;
     }
+    // don't bother drawing if nothing interesting happened.
+    // this system leads to needing a lot of assignments to 'Redraw',
+    // which is very ugly and a bit of a faff, but the performance save is absolutely worth it.
+    if (!Redraw) {
+        // Test code to check when the surface isn't being redrawn.
+        // BeginTextureMode(m_renderTexture);
+        // DrawRectangle(0,0,m_Bounds.width, m_Bounds.height, ColorAlpha(m_StyleProperties.border_color, 0.5f));
+        // EndTextureMode();
+        return m_renderTexture;
+    }
+    BeginTextureMode(m_renderTexture);
+    BeginBlendMode(BLEND_ALPHA);
+    ClearBackground(BG_DARK);
+    Draw();
+    EndBlendMode();
+    EndTextureMode();
+    for (auto &element: m_Children) {
+        RenderTexture2D childTex = element->BaseDraw();
+        BeginTextureMode(m_renderTexture);
+        DrawTextureRec(childTex.texture,
+    Rectangle( 0, 0, (float)childTex.texture.width, -(float)childTex.texture.height),
+    Vector2(element->m_LocalPosition.x,element->m_LocalPosition.y),
+        WHITE);
+        EndTextureMode();
+    }
+
     if (_wasHovered && !m_Tooltip.empty()) {
         Vector2 tooltipSize = MeasureTextEx(m_tooltipFont, m_Tooltip.c_str(), m_StyleProperties.font_size, 1);
-        DrawRectangle(GetMouseX(), GetMouseY(), tooltipSize.x + 5, tooltipSize.y+5,
-            ColorAlpha(m_StyleProperties.background_color, 255.0f));
+        DrawRectangle(GetMouseX(), GetMouseY(), tooltipSize.x + 5, tooltipSize.y+5, m_StyleProperties.background_color);
         DrawTextEx(m_tooltipFont, m_Tooltip.c_str(), (Vector2){GetMouseX()+5.0f, GetMouseY()+5.0f}, m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
     }
+    BeginTextureMode(m_renderTexture);
     PostDraw();
+    EndTextureMode();
+
+    // reset the redraw flag to prevent more unnecessary draw operations.
+    // this has the side effect of requiring the UI to be UPDATED BEFORE IT IS DRAWN, as otherwise, the Redraw flag will never be set to true.
+    Redraw = false;
+
+    return m_renderTexture;
 }
 void Control::BaseUpdate(float gameTime) {
     UpdatePos();
@@ -86,13 +119,17 @@ void Control::BaseUpdate(float gameTime) {
     if (IsDragged) {
         m_LocalPosition.x += GetMouseDelta().x;
         m_LocalPosition.y += GetMouseDelta().y;
+        Redraw = true;
     }
     if (IsHovered) {
+        Redraw = true;
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             IsClicked=true;
+            Redraw = true;
         }
         else {
             IsClicked=false;
+            Redraw = true;
         }
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             DoClick(MOUSE_MASK_DOWN, MOUSE_BUTTON_LEFT);
@@ -110,6 +147,7 @@ void Control::BaseUpdate(float gameTime) {
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
         IsDragged=false; //reset drag if the mouse is released at all.
+        Redraw = true;
     }
     Update(gameTime);
     for (auto &element: m_Children) {
@@ -126,6 +164,7 @@ bool Control::CheckMouse(Vector2 mousePos) {
     if (CheckCollisionPointRec(mousePos, m_Bounds)) {
         if (CheckCollisionPointRec(mousePos, m_DragBounds)) {
             IsHovered=true;
+            Redraw = true;
             return true;
         }
         if (m_Children.empty()) {
@@ -135,12 +174,15 @@ bool Control::CheckMouse(Vector2 mousePos) {
             {
                 // 'CaptureMouse' flag allows for some widgets to let their parent remain hovered when they would normally
                 // capture the mouse hover.
-                if (CheckCollisionPointRec(mousePos, control->m_Bounds) && control->CaptureMouse) {
+                // Widget must be enabled as well, otherwise 'closed' windows block mouse events that appear as if they should work.
+                if (CheckCollisionPointRec(mousePos, control->m_Bounds) && control->CaptureMouse && control->IsEnabled) {
                     control->CheckMouse(mousePos);
                     IsHovered = false;
+                    Redraw=true;
                     return false;
                 }
                 IsHovered = true;
+                Redraw=true;
             }
         }
     }
@@ -184,22 +226,27 @@ void Control::Draw() {
     if (m_Parent == nullptr) { return; }
     if (m_StyleProperties.rounding > 0.0f) {
         DrawRectangleRounded(
-            Rectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width + 1, m_Bounds.height + 1),
+            Rectangle(0, 0, m_Bounds.width + 1, m_Bounds.height + 1),
             m_StyleProperties.rounding,
             10,
             m_StyleProperties.background_color);
-        DrawRectangleRoundedLinesEx(m_Bounds,
-            m_StyleProperties.rounding,
-            10,
-            m_StyleProperties.border_thickness,
-            m_StyleProperties.border_color);
     } else {
-        DrawRectangle(m_Bounds.x, m_Bounds.y, m_Bounds.width, m_Bounds.height, m_StyleProperties.background_color);
-        DrawRectangleLinesEx(m_Bounds, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+        DrawRectangle(0, 0, m_Bounds.width, m_Bounds.height, m_StyleProperties.background_color);
     }
 }
 
-void Control::PostDraw() { }
+void Control::PostDraw() {
+    if (m_Parent == nullptr) { return; }
+    if (m_StyleProperties.rounding > 0.0f) {
+        DrawRectangleRoundedLinesEx((Rectangle){0, 0, m_Bounds.width, m_Bounds.height},
+        m_StyleProperties.rounding,
+        10,
+        m_StyleProperties.border_thickness,
+        m_StyleProperties.border_color);
+    } else {
+        DrawRectangleLinesEx((Rectangle){0, 0, m_Bounds.width, m_Bounds.height}, m_StyleProperties.border_thickness, m_StyleProperties.border_color);
+    }
+}
 
 Control::~Control() {
     m_Children.clear();
@@ -207,36 +254,43 @@ Control::~Control() {
 
 Control * Control :: SetStyle(hl_StyleProperties style) {
     m_StyleProperties = style;
+    Redraw=true;
     return this;
 }
 
 Control * Control::Enable() {
     IsEnabled = true;
+    Redraw=true;
     return this;
 }
 
 Control * Control::Disable() {
     IsEnabled = false;
+    Redraw=true;
     return this;
 }
 
 Control * Control::SetRounding(float rounding) {
     m_StyleProperties.rounding = rounding;
+    Redraw=true;
     return this;
 }
 
 Control * Control:: SetBorderColor(Color color) {
     m_StyleProperties.border_color = color;
+    Redraw=true;
     return this;
 }
 
 Control * Control::SetBackgroundColor(Color color) {
     m_StyleProperties.background_color = color;
+    Redraw=true;
     return this;
 }
 
 Control * Control::SetColor(Color color) {
     m_StyleProperties.foreground_color = color;
+    Redraw=true;
     return this;
 }
 
@@ -253,8 +307,20 @@ Control * Control::SetSize(float w, float h) {
 }
 Control * Control::SetLocalPos(int x, int y) {
     m_LocalPosition = Vector2(x, y);
+    Redraw=true;
     return this;
 }
+
+void Control::BringToTop(shared_ptr<Control> control) {
+    if (control != nullptr) {
+        if (control->m_Parent == this) {
+            m_Children.remove(control);
+            m_Children.push_back(control);
+            Redraw=true;
+        }
+    }
+}
+
 Control * Control::FillParentWidth() {
     m_StyleProperties.fill_parent_w = true;
     return this;
@@ -361,6 +427,7 @@ Control* Control::Deactivate() {
     m_StyleProperties.foreground_color.a=200.0f;
     m_StyleProperties.border_color.a= 200.0f;
     IsActive = false;
+    Redraw=true;
     return this;
 }
 Control* Control::Activate() {
@@ -369,6 +436,7 @@ Control* Control::Activate() {
     m_StyleProperties.foreground_color.a=255.0f;
     m_StyleProperties.border_color.a= 255.0f;
     IsActive = true;
+    Redraw=true;
     return this;
 }
 void Control::Layout() {
@@ -380,6 +448,7 @@ void Control::Layout() {
     }
 
     for (auto &child_auto: childrenByAnchor[9]) {
+        if (child_auto->IsFloating) continue;
         if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
             layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
             layout.cursor_position.y  = child_auto->m_StyleProperties.padding.y;
@@ -394,6 +463,8 @@ void Control::Layout() {
             layout.cursor_position.y += child_auto->m_Bounds.height;
         }
     }
+    m_Bounds.width = std::ranges::max(layout.cursor_position.x, m_Bounds.width);
+    m_Bounds.height = std::ranges::max(layout.cursor_position.y, m_Bounds.height);
 }
 
 void Control::BaseLayout() {
@@ -440,6 +511,23 @@ void Control::BaseLayout() {
         }
     }
     Layout();
+    if (m_Parent!=nullptr) {
+        if (m_StyleProperties.fill_parent_h) {
+            m_LocalPosition.y = m_StyleProperties.padding.y;
+            m_Bounds.height = m_Parent->m_Bounds.height - m_LocalPosition.y*2;
+            // change this in future to be "fill as much space as possible" rather than "fill all the space".
+        }
+        if (m_StyleProperties.fill_parent_w) {
+            m_LocalPosition.x = m_StyleProperties.padding.x;
+            m_Bounds.width = m_Parent->m_Bounds.width - m_LocalPosition.x*2;
+        }
+    }
+    // load render texture again with updated width/height values.
+    if (m_renderTexture.texture.width != m_Bounds.width || m_renderTexture.texture.height != m_Bounds.height) {
+        UnloadRenderTexture(m_renderTexture);
+        m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
+    }
+    Redraw = true;
     for (auto &child: m_Children) {
         child->BaseLayout();
     }

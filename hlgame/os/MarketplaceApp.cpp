@@ -72,11 +72,9 @@ void MarketplaceApp::CreateWindow(shared_ptr<GuiScene> gui) {
     CREATE_LIST_ITEM_MEMBER_CALLBACK(_select_app, f_select_app);
     gui->Begin();
         gui->BeginControl<WindowControl>("Marketplace", 300,250);
-        gui->BeginControl<ListBox>(300,190,32);
-        for (auto [name, app]: m_purchasableApps) {
-            gui->BeginControl<Control>(300,32);
-                gui->CreateControl<TextLabel>(app->GetName().c_str())->SetAnchor(ANCHOR_CENTER)->DisableMouseCapture();
-            gui->EndControl<Control>()->SetTag(name.c_str());
+        gui->BeginControl<ListBox>(300,190);
+        for (const auto& [name, app]: m_purchasableApps) {
+            gui->CreateControl<TextLabel>((app->GetName() + " v" + to_string(app->GetUpgradeLevel()+1)).c_str() )->SetTag(name.c_str())->SetPadding(0,0)->FillParentWidth();
         }
         gui->EndControl<ListBox>()->OnItemSelected(f_select_app)->SetPadding(0,0);
         gui->BeginControl<Control>(300,40);
@@ -87,7 +85,7 @@ void MarketplaceApp::CreateWindow(shared_ptr<GuiScene> gui) {
             btn_Downgrade = gui->CreateControl<Button>("Downgrade", f_downgrade_software);
             btn_Downgrade->Deactivate();
             gui->EndControl<Control>()->SetLayoutDirection(GUI_LAYOUT_HORIZONTAL)->SetBackgroundColor(TRANSPARENT)->SetPadding(0,0);
-        gui->EndControl<WindowControl>();
+        m_GuiWindow = gui->EndControl<WindowControl>();
     gui->End();
 }
 

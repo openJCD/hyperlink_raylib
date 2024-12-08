@@ -49,8 +49,6 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgui/ResourceManager.cpp
         hlgui/ResourceManager.h
         hlgui/hlgui.h
-        hlgame/Player.cpp
-        hlgame/Player.h
         hlgui/Button.cpp
         hlgui/Button.h
         hlgui/FpsWidget.h 
@@ -68,10 +66,14 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgame/os/MarketplaceApp.h
         hlgui/ListBox.cpp
         hlgui/ListBox.h
+        hlgame/os/TerminalApp.cpp
+        hlgame/os/TerminalApp.h
+        hlgui/LargeTextBox.cpp
+        hlgui/LargeTextBox.h
 )
 # copy resources directory to build directory
 add_custom_command(
         TARGET ${PROJECT_NAME}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources ${CMAKE_BINARY_DIR}/resources)
-target_link_libraries(${PROJECT_NAME} raylib)
+target_link_libraries(${PROJECT_NAME} raylib -static -static-libgcc -static-libstdc++)

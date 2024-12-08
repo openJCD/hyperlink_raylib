@@ -15,8 +15,8 @@ private:
     shared_ptr<Button> btn_Upgrade = nullptr;
     shared_ptr<Button> btn_Downgrade = nullptr;
 public:
-    MarketplaceApp(const char *name, float minMemoryRequired)
-        : OsProgram(name, minMemoryRequired) {
+    MarketplaceApp(CcOS& gameState, const char *name, float minMemoryRequired)
+        : OsProgram(gameState, name, minMemoryRequired) {
     }
 
     ~MarketplaceApp() override;

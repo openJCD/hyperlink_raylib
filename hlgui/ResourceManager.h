@@ -31,6 +31,4 @@ public:
     static hl_StyleProperties GetStyle(const char* name);
 };
 
-
-
 #endif //RESOURCEMANAGER_H

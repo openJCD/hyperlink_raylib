@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include "hlgui/Control.h"
 #include "raylib.h"
+#include "rlgl.h"
 #include "hlgame/GameNodeMap.h"
 #include "hlgame/os/CcOS.h"
 #include "hlgui/Button.h"
@@ -27,15 +28,16 @@ int main() {
     int renderHeight = 600;
     InitWindow(renderWidth, renderHeight, "Hyperlink Demo");
     GameNodeMap map = GameNodeMap();
-    SetTargetFPS(1200);
+    // SetTargetFPS(1200);
     RenderTexture2D gui_render_texture = LoadRenderTexture(renderWidth, renderHeight);
     RenderTexture2D game_render_texture = LoadRenderTexture(renderWidth, renderHeight);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-    GuiSetGlobalFont(LoadFont("resources/gui/fonts/JetBrainsMono-Regular.ttf"));
+    GuiSetGlobalFont(LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 40, NULL, NULL));
     GuiSetDefaultStyle(STYLE_HICONTRAST);
     GuiSetButtonStyle(STYLE_BUTTON_STATIC);
     GuiSetTextLabelStyle(STYLE_TEXT_LABEL);
+
     CcOS ccos = CcOS(renderWidth, renderHeight);
     shared_ptr<Control> gui_root = ccos.GetRootGuiControl();
     while (!WindowShouldClose()) {
@@ -52,10 +54,7 @@ int main() {
         }
         ccos.Update();
         gui_root->BaseUpdate(GetFrameTime());
-        BeginTextureMode(gui_render_texture);
-        ClearBackground(TRANSPARENT);
-        gui_root->BaseDraw();
-        EndTextureMode();
+        gui_render_texture = gui_root->BaseDraw();
 
         BeginDrawing();
         ClearBackground(BG_DARK);
@@ -64,6 +63,7 @@ int main() {
             Rectangle( 0, 0, (float)gui_render_texture.texture.width, -(float)gui_render_texture.texture.height),
             Vector2(0,0),
             WHITE);
+        DrawFPS(10,10);
         EndDrawing();
     }
     CloseWindow();
