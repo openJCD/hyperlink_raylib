@@ -26,7 +26,7 @@ protected:
 
     Font& m_tooltipFont = ResourceManager::GetFont("tooltip");
 
-    RenderTexture2D m_renderTexture;
+    RenderTexture2D m_renderTexture = LoadRenderTexture(0,0);
 
     Rectangle m_Bounds{0,0,0,0};
 
@@ -74,7 +74,6 @@ protected:
     virtual void Update(float gameTime);
 
     virtual void Layout();
-    void         BaseLayout();
 public:
     virtual  ~Control();
 
@@ -93,6 +92,10 @@ public:
     /// Must be called on the root Control.
     RenderTexture2D BaseDraw();
 
+    /// Perform layout code on this element and all its children. \n
+    /// Done automatically in every 'EndControl' or 'End' call when using GuiScene system.
+    /// Otherwise, it is best to do this manually so the user doesn't have to resize the window to get correctly placed GUI.
+    void         BaseLayout();
     /// Update the root Control's position, along with all children and so on.
     void     BaseUpdate(float gameTime);
 

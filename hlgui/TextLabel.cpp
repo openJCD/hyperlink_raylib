@@ -7,9 +7,22 @@
 void TextLabel::Draw() {
     Control::Draw();
     Vector2 textSize = MeasureTextEx(m_font, m_text.c_str(), m_StyleProperties.font_size, 1);
-
-    int textx = (m_Bounds.width/2 - textSize.x / 2);
-    int texty = (m_Bounds.height/2 - textSize.y / 2);
+    int textx = 0;
+    int texty = 0;
+    switch (m_alignMode) {
+        case TEXT_ALIGN_LEFT:
+            textx = (int)(m_StyleProperties.margin.x);
+            texty = (int)(m_Bounds.height/2 - textSize.y / 2);
+            break;
+        case TEXT_ALIGN_CENTER:
+            textx = (int)(m_Bounds.width/2 - textSize.x / 2);
+            texty = (int)(m_Bounds.height/2 - textSize.y / 2);
+            break;
+        case TEXT_ALIGN_RIGHT:
+            textx = (int)(m_Bounds.width - textSize.x - m_StyleProperties.margin.x);
+            texty = (int)(m_Bounds.height/2 - textSize.y / 2);
+            break;
+    }
 
     DrawTextEx(m_font, m_text.c_str(), Vector2(textx, texty), m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
 }
@@ -48,6 +61,13 @@ void TextLabel::Update(float gameTime) {
 
 TextLabel * TextLabel::SetText(const char *text) {
     m_text = text;
+    Redraw=true;
     BaseLayout();
+    return this;
+}
+
+TextLabel * TextLabel::SetAlign(hl_TextAlign alignMode) {
+    m_alignMode = alignMode;
+    Redraw=true;
     return this;
 }

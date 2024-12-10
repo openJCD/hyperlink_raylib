@@ -8,12 +8,13 @@
 #include <memory>
 #include "process.h"
 #include "../../hlgui/GuiScene.h"
+#include "OsProgram.h"
 class TerminalApp;
 class NetworkNode;
 using std::shared_ptr, std::list;
-class OsProgram;
 // class that contains a list of active processes, and a reference to the UI
-// to allow for opening windows, etc
+// to allow for opening windows, etc.
+// also holds all major game state.
 class CcOS {
 
     // -----Programs---- //

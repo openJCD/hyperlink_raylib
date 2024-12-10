@@ -33,6 +33,7 @@ Button::Button(const char *text, std::function<void(hl_ButtonEventArgs)>& onclic
     _debug_string = "Button_'" + string(text) + "'";
     m_StyleProperties = ResourceManager::GetStyle("button");
     m_StyleProperties_Hovered = ResourceManager::GetStyle("buttonHovered");
+    m_StyleProperties_Clicked = ResourceManager::GetStyle("buttonClicked");
     m_StyleProperties_Default = m_StyleProperties;
     OnClick = onclick;
 }

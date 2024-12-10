@@ -33,9 +33,10 @@ int main() {
     RenderTexture2D game_render_texture = LoadRenderTexture(renderWidth, renderHeight);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-    GuiSetGlobalFont(LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 40, NULL, NULL));
+    GuiSetGlobalFont(LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 32, NULL, NULL));
     GuiSetDefaultStyle(STYLE_HICONTRAST);
     GuiSetButtonStyle(STYLE_BUTTON_STATIC);
+    GuiSetButtonHoveredStyle(STYLE_BUTTON_HOVERED);
     GuiSetTextLabelStyle(STYLE_TEXT_LABEL);
 
     CcOS ccos = CcOS(renderWidth, renderHeight);

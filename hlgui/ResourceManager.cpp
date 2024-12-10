@@ -21,6 +21,7 @@ Font & ResourceManager::GetDefaultFont() {
 void ResourceManager::RemoveFont(const char *name) {
     res_Fonts.erase(name);
 }
+
 void ResourceManager:: AddStyle(const char *name, hl_StyleProperties style) {
     res_StylePresets[name] = style;
 }
@@ -45,10 +46,10 @@ hl_StyleProperties ResourceManager::GetStyle(const char *name) {
 
 void ResourceManager::AddFont(const char *name, Font font) {
     res_Fonts[name] = font;
-    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_ANISOTROPIC_8X);
+    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_TRILINEAR);
 }
 
 void ResourceManager::LoadFontAndAdd(const char *name, const char *path, short fontSize) {
     res_Fonts[name] = LoadFontEx(path, fontSize, NULL, NULL);
-    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_ANISOTROPIC_8X);
+    SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_POINT);
 }

@@ -52,18 +52,19 @@ public:
     shared_ptr<Control> End();
 
     /// create a standalone, empty control
-    template<typename ControlType, typename... Args>
+    template<class ControlType, typename... Args>
     shared_ptr<ControlType> CreateControl(Args... args){
+        static_assert(std::is_base_of<Control, ControlType>(), "Given type must be a subclass of Control.");
         _gui_incrememtCurrentChildCount();
         shared_ptr<ControlType> control = make_shared<ControlType>(args...);
-
         controlStorageList.push_back(*control);
         controlStack.push(control);
+        control->BaseLayout();
         return control;
     }
 
     /// begin a new control layout. declare children below.
-    template<typename ControlType, typename... Args>
+    template<class ControlType, typename... Args>
     void BeginControl(Args... args) {
         _gui_incrememtCurrentChildCount();
         controlChildCountStack.push(0);
@@ -74,12 +75,15 @@ public:
     }
 
     /// finish the current control layout and add all above child controls.
-    template<typename ControlType>
+    template<class ControlType>
     shared_ptr<ControlType> EndControl() {
+        static_assert(std::is_base_of<Control, ControlType>(), "Given type must be a subclass of Control.");
+
         list<shared_ptr<Control>> ptrsToAdd;
 
         stack<shared_ptr<Control>> controlStackReversed = _gui_reverseSomeOfStackUntil(controlChildCountStack.top());
         controlChildCountStack.pop();
+
         int count = controlStackReversed.size();
         for (int i=0; i<count; i++) {
             shared_ptr<Control> control = controlStackReversed.top();
@@ -91,8 +95,9 @@ public:
         for (const auto& ptr: ptrsToAdd) {
             myself->Add(ptr);
         }
+        myself->BaseLayout();
         return myself;
     }
 };
 
-#endif //GUISCENE_H
+#endif // GUISCENE_H

@@ -12,24 +12,20 @@ using std::list, std::shared_ptr, std::to_string, std::make_shared;
 Control::Control(short w, short h) {
     m_Anchor = ANCHOR_AUTO;
     m_Bounds = Rectangle(0,0,w,h);
-    m_renderTexture = LoadRenderTexture(w, h);
     _debug_string = "Control_ANCHOR_AUTO_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(short w, short h, const hl_AnchorType anchor) {
     m_Anchor = anchor;
     m_Bounds = Rectangle(0,0,w,h);
-    m_renderTexture = LoadRenderTexture(w, h);
     _debug_string = "Control_MANUAL_ANCHOR_" + to_string(w) + "_" + to_string(h);
 }
 Control::Control(hl_AnchorType anchor) {
-    m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     m_Anchor = anchor;
     _debug_string = "Control_" + to_string(anchor) + "_autoSized";
 }
 
 Control::Control() {
     m_Anchor = ANCHOR_AUTO;
-    m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     _debug_string = "Control_ANCHOR_AUTO_autoSized";
 }
 Control* Control::SetAnchor(hl_AnchorType anchor) {
@@ -76,27 +72,27 @@ RenderTexture2D Control::BaseDraw() {
         return m_renderTexture;
     }
     BeginTextureMode(m_renderTexture);
-    BeginBlendMode(BLEND_ALPHA);
     ClearBackground(BG_DARK);
     Draw();
-    EndBlendMode();
     EndTextureMode();
     for (auto &element: m_Children) {
         RenderTexture2D childTex = element->BaseDraw();
         BeginTextureMode(m_renderTexture);
+        BeginBlendMode(RL_BLEND_ALPHA_PREMULTIPLY);
         DrawTextureRec(childTex.texture,
     Rectangle( 0, 0, (float)childTex.texture.width, -(float)childTex.texture.height),
     Vector2(element->m_LocalPosition.x,element->m_LocalPosition.y),
         WHITE);
+        EndBlendMode();
         EndTextureMode();
     }
 
+    BeginTextureMode(m_renderTexture);
     if (_wasHovered && !m_Tooltip.empty()) {
         Vector2 tooltipSize = MeasureTextEx(m_tooltipFont, m_Tooltip.c_str(), m_StyleProperties.font_size, 1);
         DrawRectangle(GetMouseX(), GetMouseY(), tooltipSize.x + 5, tooltipSize.y+5, m_StyleProperties.background_color);
         DrawTextEx(m_tooltipFont, m_Tooltip.c_str(), (Vector2){GetMouseX()+5.0f, GetMouseY()+5.0f}, m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
     }
-    BeginTextureMode(m_renderTexture);
     PostDraw();
     EndTextureMode();
 
@@ -214,7 +210,7 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
 Control* Control::Add (shared_ptr<Control> child) {
     m_Children.push_back(child);
     child->m_Parent = this;
-    BaseLayout();
+    // BaseLayout(); <- Moved this to the 'End' / 'EndControl<T>' call in the GuiScene to avoid unnecessary texture loading at startup.
     return this;
 }
 Control* Control:: Remove(shared_ptr<Control> child) {
@@ -523,7 +519,7 @@ void Control::BaseLayout() {
         }
     }
     // load render texture again with updated width/height values.
-    if (m_renderTexture.texture.width != m_Bounds.width || m_renderTexture.texture.height != m_Bounds.height) {
+    if (m_renderTexture.texture.width != (int)m_Bounds.width || m_renderTexture.texture.height != (int)m_Bounds.height) {
         UnloadRenderTexture(m_renderTexture);
         m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     }

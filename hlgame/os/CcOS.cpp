@@ -58,8 +58,8 @@ CcOS::CcOS(short screenWidth, short screenHeight) {
     m_GuiRoot = m_GuiScene.End();
     m_Menu->Disable()->SetLayoutDirection(GUI_LAYOUT_VERTICAL);
 
-    auto market = make_shared<MarketplaceApp>(*this, "Market", 0.5f);
-    auto app1 = make_shared<OsProgram>(*this, "Cracker", 1.0f, "Sample application 1 for CcOS", 100);
+    auto market=make_shared<MarketplaceApp>(*this, "Market", 0.5f);
+    auto app1 = make_shared<OsProgram>(*this, "PasswordCracker", 1.0f, "Sample application 1 for CcOS", 100);
     auto app2 = make_shared<OsProgram>(*this,"BotnetManager", 1.0f, "Sample application 2 for CcOS", 150);
     auto term = make_shared<TerminalApp>(*this);
 

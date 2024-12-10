@@ -14,6 +14,7 @@ protected:
     string m_text = "Label";
     hl_AnchorType m_Anchor = ANCHOR_AUTO;
     Font& m_font = ResourceManager::GetDefaultFont();
+    hl_TextAlign m_alignMode = TEXT_ALIGN_CENTER;
     void Layout() override;
 public:
     TextLabel(Font &font, const char* text);
@@ -21,6 +22,7 @@ public:
     ~TextLabel() override;
     void Update(float gameTime) override;
     TextLabel *SetText(const char* text);
+    TextLabel *SetAlign(hl_TextAlign alignMode);
 };
 
 #endif //TEXTLABEL_H
