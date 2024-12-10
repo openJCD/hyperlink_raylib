@@ -46,15 +46,15 @@ CcOS::CcOS(short screenWidth, short screenHeight) {
     CREATE_BUTTON_MEMBER_CALLBACK(_launch_program, f_launch_program);
 
     m_GuiScene.Begin(screenWidth, screenHeight);
+        m_GuiScene.BeginControl<Control>(100,100);
+            m_GuiScene.CreateControl<Button>("Open Menu", f_create_menu);
+            m_GuiScene.CreateControl<Button>("Open Market", f_launch_program)->SetTag("Market");
+            m_GuiScene.CreateControl<Button>("Open Terminal", f_launch_program)->SetTag("ccTerm");
+        m_GuiScene.EndControl<Control>()->SetLayoutDirection(GUI_LAYOUT_HORIZONTAL);
         m_GuiScene.BeginControl<WindowControl>("Menu Window", 200, 250);
             m_GuiScene.CreateControl<Button>("Close Menu", f_close_menu);
             m_GuiScene.CreateControl<Button>("Quit", f_quit);
         m_Menu=m_GuiScene.EndControl<WindowControl>();
-        m_GuiScene.BeginControl<Control>(100,100);
-        m_GuiScene.CreateControl<Button>("Open Menu", f_create_menu);
-        m_GuiScene.CreateControl<Button>("Open Market", f_launch_program)->SetTag("Market");
-        m_GuiScene.CreateControl<Button>("Open Terminal", f_launch_program)->SetTag("ccTerm");
-        m_GuiScene.EndControl<Control>()->SetLayoutDirection(GUI_LAYOUT_HORIZONTAL);
     m_GuiRoot = m_GuiScene.End();
     m_Menu->Disable()->SetLayoutDirection(GUI_LAYOUT_VERTICAL);
 

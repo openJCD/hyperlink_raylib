@@ -66,9 +66,9 @@ RenderTexture2D Control::BaseDraw() {
     // which is very ugly and a bit of a faff, but the performance save is absolutely worth it.
     if (!Redraw) {
         // Test code to check when the surface isn't being redrawn.
-        // BeginTextureMode(m_renderTexture);
-        // DrawRectangle(0,0,m_Bounds.width, m_Bounds.height, ColorAlpha(m_StyleProperties.border_color, 0.5f));
-        // EndTextureMode();
+         //BeginTextureMode(m_renderTexture);
+         //DrawRectangle(0,0,m_Bounds.width, m_Bounds.height, ColorAlpha(m_StyleProperties.border_color, 0.5f));
+         //EndTextureMode();
         return m_renderTexture;
     }
     BeginTextureMode(m_renderTexture);
@@ -418,10 +418,10 @@ Control * Control::SetMargin(short x, short y) {
 }
 
 Control* Control::Deactivate() {
-    m_StyleProperties.opacity = 200.0f;
-    m_StyleProperties.background_color.a=200.0f;
-    m_StyleProperties.foreground_color.a=200.0f;
-    m_StyleProperties.border_color.a= 200.0f;
+    m_StyleProperties.opacity = 127.0f;
+    m_StyleProperties.background_color.a=127.0f;
+    m_StyleProperties.foreground_color.a=127.0f;
+    m_StyleProperties.border_color.a= 127.0f;
     IsActive = false;
     Redraw=true;
     return this;

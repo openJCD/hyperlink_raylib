@@ -15,6 +15,8 @@
 #include "ListBox.h"
 #include "FpsWidget.h"
 #include "LargeTextBox.h"
+#include "TextInput.h"
+
 using std::list, std::stack, std::make_shared;
 
 class GuiScene {

@@ -70,6 +70,8 @@ add_executable(${PROJECT_NAME} main.cpp
         hlgame/os/TerminalApp.h
         hlgui/LargeTextBox.cpp
         hlgui/LargeTextBox.h
+        hlgui/TextInput.cpp
+        hlgui/TextInput.h
 )
 # copy resources directory to build directory
 add_custom_command(

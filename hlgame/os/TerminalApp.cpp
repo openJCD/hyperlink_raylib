@@ -14,8 +14,8 @@ void TerminalApp::SendMessage(string msg) {
 void TerminalApp::CreateWindow(shared_ptr<GuiScene> gui) {
     gui->Begin();
     gui->BeginControl<WindowControl>("Terminal", 300, 350);
-        gui->CreateControl<LargeTextBox>(300,300,m_textData)->FillParentWidth()->SetColor(GREEN);
-        gui->CreateControl<TextLabel>("Placeholder for text input field")->SetAlign(TEXT_ALIGN_LEFT)->FillParentWidth();
+        gui->CreateControl<LargeTextBox>(300, 300,m_textData)->FillParentWidth()->SetColor(GREEN);
+        gui->CreateControl<TextInput>(300, 300)->FillParentWidth()->SetColor(GREEN);
     m_GuiWindow = gui->EndControl<WindowControl>();
     m_GuiWindow->Disable();
     gui->End();

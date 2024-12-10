@@ -36,5 +36,8 @@ static void GuiSetWindowStyle(hl_StyleProperties style) {
 static void GuiSetTextLabelStyle(hl_StyleProperties style) {
     ResourceManager::AddStyle("textLabel", style);
 }
+static void GuiSetTextInputStyle(hl_StyleProperties style) {
+    ResourceManager::AddStyle("textInput", style);
+}
 
 #endif //HLGUI_H
