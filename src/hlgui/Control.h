@@ -26,7 +26,7 @@ protected:
 
     Font& m_tooltipFont = ResourceManager::GetFont("tooltip");
 
-    RenderTexture2D m_renderTexture = LoadRenderTexture(0,0);
+    RenderTexture2D m_renderTexture;// = LoadRenderTexture(0,0);
 
     Rectangle m_Bounds{0,0,0,0};
 
@@ -66,7 +66,7 @@ protected:
     hl_GuiLayoutType m_layoutType = GUI_LAYOUT_VERTICAL;
 
     virtual void DoClick(MouseMask mask, MouseButton button);
-    std::function<void(hl_ButtonEventArgs)> OnClick = nullptr;
+    std::function<void(hl_ClickEventArgs)> OnClick = nullptr;
 
     virtual void Draw();
     virtual void PostDraw();
@@ -88,6 +88,7 @@ public:
     /// Returns true if root is hovered, false if the rest of the UI is hovered.
     /// Use to block clicks to the game world in main loop.
     bool CheckMouse(Vector2 mousePos);
+
     /// Draw the control. Must be called between BeginDrawing and EndDrawing.
     /// Must be called on the root Control.
     RenderTexture2D BaseDraw();
@@ -127,7 +128,7 @@ public:
     /// Must specify the draggable area.
     Control* EnableDragging(Rectangle localDragZone);
     Control* SetMargin(int horizontal, int vertical);
-    Control* SetClickAction(std::function<void(hl_ButtonEventArgs)> func);
+    Control* SetClickAction(std::function<void(hl_ClickEventArgs)> func);
     Control* SetLayoutDirection(hl_GuiLayoutType type);
 
     Control* Deactivate();

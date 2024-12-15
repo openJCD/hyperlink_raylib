@@ -36,10 +36,10 @@ Control* Control::SetAnchor(hl_AnchorType anchor) {
 
 void Control :: Update(float gameTime) {}
 void Control :: UpdatePos() {
-    m_Bounds.x = 0;
-    m_Bounds.y = 0;
     m_DragBounds = m_DragZone;
     if (m_Parent != nullptr) {
+        // m_Bounds.x = 0;
+        // m_Bounds.y = 0;
         m_Bounds.x = m_Parent->m_Bounds.x + m_LocalPosition.x;
         m_Bounds.y = m_Parent->m_Bounds.y + m_LocalPosition.y;
     } else {
@@ -53,7 +53,6 @@ void Control :: UpdatePos() {
         Redraw = true;
     }
 }
-
 RenderTexture2D Control::BaseDraw() {
     if (!IsEnabled) {
         BeginTextureMode(m_renderTexture);
@@ -66,19 +65,19 @@ RenderTexture2D Control::BaseDraw() {
     // which is very ugly and a bit of a faff, but the performance save is absolutely worth it.
     if (!Redraw) {
         // Test code to check when the surface isn't being redrawn.
-         //BeginTextureMode(m_renderTexture);
-         //DrawRectangle(0,0,m_Bounds.width, m_Bounds.height, ColorAlpha(m_StyleProperties.border_color, 0.5f));
-         //EndTextureMode();
+        // BeginTextureMode(m_renderTexture);
+        // DrawRectangle(0,0,m_Bounds.width, m_Bounds.height, ColorAlpha(m_StyleProperties.border_color, 100));
+        // EndTextureMode();
         return m_renderTexture;
     }
     BeginTextureMode(m_renderTexture);
-    ClearBackground(BG_DARK);
+    ClearBackground(TRANSPARENT);
     Draw();
     EndTextureMode();
     for (auto &element: m_Children) {
         RenderTexture2D childTex = element->BaseDraw();
         BeginTextureMode(m_renderTexture);
-        BeginBlendMode(RL_BLEND_ALPHA_PREMULTIPLY);
+        BeginBlendMode(RL_BLEND_ALPHA_PREMULTIPLY); //premultiplied alpha is required for nice font rendering.
         DrawTextureRec(childTex.texture,
     Rectangle( 0, 0, (float)childTex.texture.width, -(float)childTex.texture.height),
     Vector2(element->m_LocalPosition.x,element->m_LocalPosition.y),
@@ -88,12 +87,13 @@ RenderTexture2D Control::BaseDraw() {
     }
 
     BeginTextureMode(m_renderTexture);
+    PostDraw();
+    //m_Tooltip = TextFormat("Screen Position: %i, %i Local Position: %i %i", m_Bounds.x, m_Bounds.y, m_LocalPosition.x, m_LocalPosition.y);
     if (_wasHovered && !m_Tooltip.empty()) {
         Vector2 tooltipSize = MeasureTextEx(m_tooltipFont, m_Tooltip.c_str(), m_StyleProperties.font_size, 1);
-        DrawRectangle(GetMouseX(), GetMouseY(), tooltipSize.x + 5, tooltipSize.y+5, m_StyleProperties.background_color);
-        DrawTextEx(m_tooltipFont, m_Tooltip.c_str(), (Vector2){GetMouseX()+5.0f, GetMouseY()+5.0f}, m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
+        DrawRectangle(0, 0, tooltipSize.x + 5, tooltipSize.y+5, m_StyleProperties.background_color);
+        DrawTextEx(m_tooltipFont, m_Tooltip.c_str(), (Vector2){5.0f, 5.0f}, m_StyleProperties.font_size, 1, m_StyleProperties.foreground_color);
     }
-    PostDraw();
     EndTextureMode();
 
     // reset the redraw flag to prevent more unnecessary draw operations.
@@ -103,7 +103,6 @@ RenderTexture2D Control::BaseDraw() {
     return m_renderTexture;
 }
 void Control::BaseUpdate(float gameTime) {
-    UpdatePos();
     if (m_Parent != nullptr) {
         m_StyleProperties.opacity = 1;
         m_StyleProperties.opacity *= m_Parent->GetStyleProperties().opacity;
@@ -111,6 +110,7 @@ void Control::BaseUpdate(float gameTime) {
         m_StyleProperties.border_color.a *= m_StyleProperties.opacity;
         m_StyleProperties.foreground_color.a *= m_StyleProperties.opacity;
     }
+    UpdatePos();
     if (!IsEnabled || !IsActive) return;
     if (IsDragged) {
         m_LocalPosition.x += GetMouseDelta().x;
@@ -148,6 +148,9 @@ void Control::BaseUpdate(float gameTime) {
     Update(gameTime);
     for (auto &element: m_Children) {
         element->BaseUpdate(gameTime);
+        if (element->Redraw) {    // Redraw myself if any of my children have redraw enabled.
+            Redraw=true;          // This is for edge-cases like the user having their mouse cursor outside of the window
+        }                         // in which an active text input is contained.
     }
 
     _wasHovered = IsHovered;
@@ -202,7 +205,7 @@ void Control::DoClick(MouseMask mask, MouseButton button) {
         }
     }
     if (OnClick != nullptr) {
-        OnClick(hl_ButtonEventArgs(mask, button, this));
+        OnClick(hl_ClickEventArgs(mask, button, this));
     }
 }
 
@@ -365,7 +368,7 @@ Control *Control::SetMargin(int horizontal, int vertical) {
     return this;
 }
 
-Control * Control::SetClickAction(std::function<void(hl_ButtonEventArgs)> func){
+Control * Control::SetClickAction(std::function<void(hl_ClickEventArgs)> func){
     OnClick = func;
     GUI_LOG("Set click action for " + _debug_string);
     return this;

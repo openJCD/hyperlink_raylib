@@ -14,9 +14,13 @@
 #include "GuiScene.h"
 #include "gui_structs.h"
 #include "LargeTextBox.h"
-
-#define CREATE_BUTTON_MEMBER_CALLBACK(member_name, var_name) std::function<void(hl_ButtonEventArgs)> var_name = std::bind(member_name, this, std::placeholders::_1);
+// Callback Macros for std::function creation //
+#define CREATE_BUTTON_MEMBER_CALLBACK(member_name, var_name) std::function<void(hl_ClickEventArgs)> var_name = std::bind(member_name, this, std::placeholders::_1);
 #define CREATE_LIST_ITEM_MEMBER_CALLBACK(member_name, var_name) std::function<void(Control*)> var_name = std::bind(member_name, this, std::placeholders::_1);
+#define CREATE_TEXTINPUT_CHARPRESSED_CALLBACK(member_name, var_name) std::function<void(TextInput&, char)> var_name = std::bind(member_name, this, std::placeholders::_1, std::placeholders::_2);
+#define CREATE_TEXTINPUT_CALLBACK(member_name, var_name) std::function<void(TextInput&)> var_name = std::bind(member_name, this, std::placeholders::_1);
+// ------------------------------------------- //
+
 using std::stack, std::list, std::make_shared, std::to_string; // gui styling methods
 static void GuiSetGlobalFont(Font font) {
     ResourceManager::AddFont("default", font);

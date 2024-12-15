@@ -11,7 +11,7 @@ class ListBox : public Control {
 protected:
     void Layout() override;
     Control* m_selectedItem = nullptr;
-    void _item_select(hl_ButtonEventArgs args);
+    void _item_select(hl_ClickEventArgs args);
     std::function<void(Control*)> f_onItemSelect;
 public:
     ListBox(short width, short height);

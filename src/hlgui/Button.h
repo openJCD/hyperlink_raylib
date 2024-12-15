@@ -19,7 +19,7 @@ protected:
     virtual void OnMouseLeave();
     void Update(float gameTime) override;
 public:
-    Button(const char* text, std::function<void(hl_ButtonEventArgs)>& onclick);
+    Button(const char* text, std::function<void(hl_ClickEventArgs)>& onclick);
     ~Button() override = default;
     Button* SetHoveredStyle(hl_StyleProperties style);
     Button* SetClickedStyle(hl_StyleProperties style);

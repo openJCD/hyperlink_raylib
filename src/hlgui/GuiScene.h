@@ -4,6 +4,7 @@
 #pragma once
 #ifndef GUISCENE_H
 #define GUISCENE_H
+#include <iostream>
 #include <list>
 #include <stack>
 
@@ -56,18 +57,26 @@ public:
     /// create a standalone, empty control
     template<class ControlType, typename... Args>
     shared_ptr<ControlType> CreateControl(Args... args){
-        static_assert(std::is_base_of<Control, ControlType>(), "Given type must be a subclass of Control.");
+        GUI_LOG("//-----------------------------------------------//");
+        GUI_LOG(TextFormat("// -------Building a standalone %s ------- // ", typeid(ControlType).name()));
+        static_assert(std::is_base_of<Control, ControlType>(), "GUI ERROR: Given type must be a subclass of Control.");
         _gui_incrememtCurrentChildCount();
         shared_ptr<ControlType> control = make_shared<ControlType>(args...);
         controlStorageList.push_back(*control);
         controlStack.push(control);
         control->BaseLayout();
+        GUI_LOG(TextFormat("// -------Finished the standalone %s------- // ", typeid(ControlType).name()));
+        GUI_LOG("//-----------------------------------------------//");
         return control;
     }
 
     /// begin a new control layout. declare children below.
     template<class ControlType, typename... Args>
     void BeginControl(Args... args) {
+        GUI_LOG("//-----------------------------------------------//");
+        GUI_LOG(TextFormat("// -------Building a %s with children------ // ", typeid(ControlType).name()));
+        static_assert(std::is_base_of<Control, ControlType>(), "GUI ERROR: Given type must be a subclass of Control.");
+
         _gui_incrememtCurrentChildCount();
         controlChildCountStack.push(0);
 
@@ -79,7 +88,7 @@ public:
     /// finish the current control layout and add all above child controls.
     template<class ControlType>
     shared_ptr<ControlType> EndControl() {
-        static_assert(std::is_base_of<Control, ControlType>(), "Given type must be a subclass of Control.");
+        static_assert(std::is_base_of<Control, ControlType>(), "GUI ERROR: Given type must be a subclass of Control.");
 
         list<shared_ptr<Control>> ptrsToAdd;
 
@@ -98,6 +107,8 @@ public:
             myself->Add(ptr);
         }
         myself->BaseLayout();
+        GUI_LOG(TextFormat("// -------Finished a %s with %i children------ // ", typeid(ControlType).name(), count));
+        GUI_LOG("//-----------------------------------------------//");
         return myself;
     }
 };

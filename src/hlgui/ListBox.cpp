@@ -14,7 +14,7 @@ void ListBox::Layout() {
     }
 }
 
-void ListBox::_item_select(hl_ButtonEventArgs args) {
+void ListBox::_item_select(hl_ClickEventArgs args) {
     if (args.mask==MOUSE_MASK_DOWN) {
         if (m_selectedItem != nullptr) {
             m_selectedItem->SetBackgroundColor(m_StyleProperties.background_color);

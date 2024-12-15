@@ -12,22 +12,22 @@
 #include "../../hlgui/FpsWidget.h"
 #include "../../hlgui/hlgui.h"
 
-void CcOS::_create_menu(hl_ButtonEventArgs args) {
+void CcOS::_create_menu(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_BUTTON_LEFT) {return;}
     m_Menu->Enable();
 }
 
-void CcOS::_close_menu(hl_ButtonEventArgs args) {
+void CcOS::_close_menu(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) {return;}
     m_Menu->Disable();
 }
 
-void CcOS::_quit_game(hl_ButtonEventArgs args) {
+void CcOS::_quit_game(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) {return;}
     exit(0);
 }
 /// match the sender's tag to an app in the repository and launch that app if possible.
-void CcOS::_launch_program(hl_ButtonEventArgs args) {
+void CcOS::_launch_program(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) {return;}
     string programName = args.sender->GetTag();
     try {

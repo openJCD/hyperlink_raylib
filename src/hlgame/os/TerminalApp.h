@@ -6,12 +6,14 @@
 #define TERMINALAPP_H
 #include "OsProgram.h"
 
-
 class TerminalApp : public OsProgram {
 private:
     string    m_textData = "Welcome to the CcOS Terminal Emulator v1.2";
-    shared_ptr<TextLabel> m_textLabel; // change this later, as a text label is only designed for single-line text.
-
+    shared_ptr<LargeTextBox> m_textLog;
+    shared_ptr<Control> m_contextMenu;
+    void _receive_command(TextInput &sender);
+    void _open_context_menu(hl_ClickEventArgs args);
+    void _close_context_menu(hl_ClickEventArgs args);
 public:
     TerminalApp(CcOS &gameState)
         : OsProgram(gameState) {

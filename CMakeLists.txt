@@ -38,40 +38,45 @@ if (APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
 endif()
 add_executable(${PROJECT_NAME} main.cpp
-        hlgui/Control.cpp
-        hlgui/Control.h
-        "hlgame/game_structs.h"
-        "hlgui/gui_structs.h"
-        hlgui/TextLabel.cpp
-        hlgui/TextLabel.h
-        hlgui/WindowControl.cpp
-        hlgui/WindowControl.h
-        hlgui/ResourceManager.cpp
-        hlgui/ResourceManager.h
-        hlgui/hlgui.h
-        hlgui/Button.cpp
-        hlgui/Button.h
-        hlgui/FpsWidget.h 
-        "hlgame/NetworkNode.h"  "hlgame/NetworkNode.cpp"
-        hlgui/perf_profile_helpers.h
-        hlgame/GameNodeMap.cpp
-        hlgame/GameNodeMap.h
-        hlgame/os/CcOS.cpp
-        hlgame/os/CcOS.h
-        hlgame/os/OsProgram.cpp
-        hlgame/os/OsProgram.h
-        hlgui/GuiScene.cpp
-        hlgui/GuiScene.h
-        hlgame/os/MarketplaceApp.cpp
-        hlgame/os/MarketplaceApp.h
-        hlgui/ListBox.cpp
-        hlgui/ListBox.h
-        hlgame/os/TerminalApp.cpp
-        hlgame/os/TerminalApp.h
-        hlgui/LargeTextBox.cpp
-        hlgui/LargeTextBox.h
-        hlgui/TextInput.cpp
-        hlgui/TextInput.h
+        src/hlgui/Control.cpp
+        src/hlgui/Control.h
+        src/hlgame/game_structs.h
+        src/hlgui/gui_structs.h
+        src/hlgui/TextLabel.cpp
+        src/hlgui/TextLabel.h
+        src/hlgui/WindowControl.cpp
+        src/hlgui/WindowControl.h
+        src/hlgui/ResourceManager.cpp
+        src/hlgui/ResourceManager.h
+        src/hlgui/hlgui.h
+        src/hlgui/Button.cpp
+        src/hlgui/Button.h
+        src/hlgui/FpsWidget.h
+        src/hlgame/NetworkNode.h
+        src/hlgame/NetworkNode.cpp
+        src/hlgui/perf_profile_helpers.h
+        src/hlgame/GameNodeMap.cpp
+        src/hlgame/GameNodeMap.h
+        src/hlgame/os/CcOS.cpp
+        src/hlgame/os/CcOS.h
+        src/hlgame/os/OsProgram.cpp
+        src/hlgame/os/OsProgram.h
+        src/hlgui/GuiScene.cpp
+        src/hlgui/GuiScene.h
+        src/hlgame/os/MarketplaceApp.cpp
+        src/hlgame/os/MarketplaceApp.h
+        src/hlgui/ListBox.cpp
+        src/hlgui/ListBox.h
+        src/hlgame/os/TerminalApp.cpp
+        src/hlgame/os/TerminalApp.h
+        src/hlgui/LargeTextBox.cpp
+        src/hlgui/LargeTextBox.h
+        src/hlgui/TextInput.cpp
+        src/hlgui/TextInput.h
+        tracy/public/TracyClient.cpp
+        src/hlgui/ScrollPanel.cpp
+        src/hlgui/ScrollPanel.h
+        src/program.h
 )
 # copy resources directory to build directory
 add_custom_command(
@@ -79,3 +84,4 @@ add_custom_command(
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources ${CMAKE_BINARY_DIR}/resources)
 target_link_libraries(${PROJECT_NAME} raylib -static -static-libgcc -static-libstdc++)
+target_compile_options(${PROJECT_NAME} PUBLIC -march=native)

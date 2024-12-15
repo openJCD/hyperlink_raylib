@@ -1,18 +1,40 @@
 ﻿#include <iostream>
-#include "hlgui/Control.h"
+#include <thread>
+
+#include "src/hlgui/Control.h"
 #include "raylib.h"
 #include "rlgl.h"
-#include "hlgame/GameNodeMap.h"
-#include "hlgame/os/CcOS.h"
-#include "hlgui/Button.h"
-#include "hlgui/FpsWidget.h"
-#include "hlgui/TextLabel.h"
-#include "hlgui/WindowControl.h"
-#include "hlgui/hlgui.h"
+#include "src/program.h"
+#include "src/hlgame/GameNodeMap.h"
+#include "src/hlgame/os/CcOS.h"
+#include "src/hlgui/Button.h"
+#include "src/hlgui/FpsWidget.h"
+#include "src/hlgui/TextLabel.h"
+#include "src/hlgui/WindowControl.h"
+#include "src/hlgui/hlgui.h"
 // #include "hlgui/perf_profile_helpers.h"
 bool _useShader = true;
 
-void toggle_fullscreen(hl_ButtonEventArgs args) {
+static hl_StyleProperties mainStyle = hl_StyleProperties {0,
+    1,
+    WHITE,
+    BG_DARK_BLUE,
+    DARKBLUE,
+    {10,10},
+    {10,10,},
+    16,
+    };
+static hl_StyleProperties btnStyle = hl_StyleProperties {0,
+    2,
+    WHITE,
+    DARKBLUE,
+    SKYBLUE,
+    {10,10},
+    {10,10},
+    16
+};
+
+void toggle_fullscreen(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) return;
     if (IsWindowState(FLAG_BORDERLESS_WINDOWED_MODE)) {
         ClearWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
@@ -24,6 +46,9 @@ void toggle_fullscreen(hl_ButtonEventArgs args) {
 
 
 int main() {
+    // init //
+    HlInit();
+
     int renderWidth = 800;
     int renderHeight = 600;
     InitWindow(renderWidth, renderHeight, "Hyperlink Demo");
@@ -33,20 +58,18 @@ int main() {
     RenderTexture2D game_render_texture = LoadRenderTexture(renderWidth, renderHeight);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-    GuiSetGlobalFont(LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 32, NULL, NULL));
-    GuiSetDefaultStyle(STYLE_HICONTRAST);
-    GuiSetButtonStyle(STYLE_BUTTON_STATIC);
-    GuiSetButtonHoveredStyle(STYLE_BUTTON_HOVERED);
-    GuiSetTextLabelStyle(STYLE_TEXT_LABEL);
+    GuiSetGlobalFont         (LoadFontEx("resources/gui/fonts/JetBrainsMono-Regular.ttf", 32, NULL, NULL));
+    GuiSetDefaultStyle       (mainStyle);
+    GuiSetButtonStyle        (btnStyle);
 
     CcOS ccos = CcOS(renderWidth, renderHeight);
+
     shared_ptr<Control> gui_root = ccos.GetRootGuiControl();
+
     while (!WindowShouldClose()) {
         if (IsWindowResized()) {
             renderWidth = GetRenderWidth();
             renderHeight = GetRenderHeight();
-            UnloadRenderTexture(gui_render_texture);
-            gui_render_texture = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
             float fbufferSize[2] = {(float)GetRenderWidth()*1.5f, (float) GetRenderHeight()*1.5f};
         }
 
@@ -56,9 +79,13 @@ int main() {
         ccos.Update();
         gui_root->BaseUpdate(GetFrameTime());
         gui_render_texture = gui_root->BaseDraw();
-
+        // multithreaded calls //
+        std::thread threadUpdate(HlUpdate);
+        std::thread threadDraw(HlDraw);
+        threadUpdate.join();
+        threadDraw.join();
         BeginDrawing();
-        ClearBackground(BG_DARK);
+        ClearBackground(BG_DARK_BLUE);
         //map.Render();
         DrawTextureRec(gui_render_texture.texture,
             Rectangle( 0, 0, (float)gui_render_texture.texture.width, -(float)gui_render_texture.texture.height),

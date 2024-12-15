@@ -21,11 +21,11 @@ public:
 
     ~MarketplaceApp() override;
 
-    void _purchase_software(hl_ButtonEventArgs args);
+    void _purchase_software(hl_ClickEventArgs args);
 
-    void _upgrade_software(hl_ButtonEventArgs args);
+    void _upgrade_software(hl_ClickEventArgs args);
 
-    void _downgrade_software(hl_ButtonEventArgs args);
+    void _downgrade_software(hl_ClickEventArgs args);
 
     void _select_app(Control *item);
 

@@ -38,10 +38,10 @@ class CcOS {
     // ----------------- //
 
     // Gui Callbacks //
-    void _create_menu(hl_ButtonEventArgs args);
-    void _close_menu(hl_ButtonEventArgs args);
-    void _quit_game(hl_ButtonEventArgs args);
-    void _launch_program(hl_ButtonEventArgs args);
+    void _create_menu(hl_ClickEventArgs args);
+    void _close_menu(hl_ClickEventArgs args);
+    void _quit_game(hl_ClickEventArgs args);
+    void _launch_program(hl_ClickEventArgs args);
     // ---------------- //
 public:
     CcOS(short screenWidth, short screenHeight);

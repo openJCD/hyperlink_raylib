@@ -16,11 +16,11 @@ protected:
     Font& m_font = ResourceManager::GetDefaultFont();
     hl_TextAlign m_alignMode = TEXT_ALIGN_CENTER;
     void Layout() override;
+    void Update(float gameTime) override;
 public:
     TextLabel(Font &font, const char* text);
     explicit TextLabel(const char *text);
     ~TextLabel() override;
-    void Update(float gameTime) override;
     TextLabel *SetText(const char* text);
     TextLabel *SetAlign(hl_TextAlign alignMode);
 };

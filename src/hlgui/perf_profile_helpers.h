@@ -73,7 +73,7 @@ typedef struct tagBITMAPINFOHEADER {
 
 inline static SIZE_T perf_virtualMemUsed;
 
-inline void get_virtual_mem_usage(hl_ButtonEventArgs args) {
+inline void get_virtual_mem_usage(hl_ClickEventArgs args) {
   if (args.mask != MOUSE_MASK_UP) return;
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));

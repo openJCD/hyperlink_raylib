@@ -29,7 +29,7 @@ void Button::Update(float gameTime) {
     _wasHovered = IsHovered;
     _wasClicked = IsClicked;
 }
-Button::Button(const char *text, std::function<void(hl_ButtonEventArgs)>& onclick): TextLabel(text) {
+Button::Button(const char *text, std::function<void(hl_ClickEventArgs)>& onclick): TextLabel(text) {
     _debug_string = "Button_'" + string(text) + "'";
     m_StyleProperties = ResourceManager::GetStyle("button");
     m_StyleProperties_Hovered = ResourceManager::GetStyle("buttonHovered");

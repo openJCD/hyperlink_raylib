@@ -22,6 +22,8 @@ stack<shared_ptr<Control>> GuiScene::_gui_reverseSomeOfStackUntil(int count) {
 }
 
 void GuiScene::Begin(short windowWidth, short windowHeight) {
+    GUI_LOG("//-----------------------------------------------//");
+    GUI_LOG("// -------Building the GUI ROOT LAYOUT!!!------- // ");
     rootControlPtr = make_shared<Control>(windowWidth, windowHeight, ANCHOR_TOP_LEFT);
     controlStorageList.push_front(*rootControlPtr);
     controlStack.push(rootControlPtr);
@@ -29,12 +31,16 @@ void GuiScene::Begin(short windowWidth, short windowHeight) {
 }
 
 void GuiScene::Begin(shared_ptr<Control> root)  {
+    GUI_LOG("//-----------------------------------------------//");
+    GUI_LOG("// -------Building the GUI ROOT LAYOUT!!!------- // ");
     rootControlPtr = root;
     controlStack.push(rootControlPtr);
     controlChildCountStack.push(0);
 }
 
 void GuiScene::Begin() {
+    GUI_LOG("//-----------------------------------------------//");
+    GUI_LOG("// -------Building the GUI ROOT LAYOUT!!!------- // ");
     if (rootControlPtr == nullptr) {
         throw null_gui_exception("Attempt to call Begin(void) with no pre-existing root control in the scene.");
     } else {
@@ -57,5 +63,7 @@ shared_ptr<Control> GuiScene::End() {
         }
     }
     rootControlPtr->BaseLayout();
+    GUI_LOG("// -------Finished the GUI ROOT LAYOUT!!!------- // ");
+    GUI_LOG("//-----------------------------------------------//");
     return rootControlPtr;
 }

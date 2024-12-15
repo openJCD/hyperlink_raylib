@@ -5,7 +5,7 @@ class ListBox;
 
 MarketplaceApp::~MarketplaceApp() = default;
 
-void MarketplaceApp::_purchase_software(hl_ButtonEventArgs args) {
+void MarketplaceApp::_purchase_software(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) {return;}
     if (m_selectedApp == nullptr) {return;}
     if (m_selectedApp->IsPurchased()) {
@@ -22,7 +22,7 @@ void MarketplaceApp::_purchase_software(hl_ButtonEventArgs args) {
     }
 }
 
-void MarketplaceApp::_upgrade_software(hl_ButtonEventArgs args) {
+void MarketplaceApp::_upgrade_software(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) { return; }
     if (m_selectedApp == nullptr) { return; }
     GAME_LOG("Upgraded " + m_selectedApp->GetName() + " to level " + std::to_string(m_selectedApp->GetUpgradeLevel()+1));
@@ -34,7 +34,7 @@ void MarketplaceApp::_upgrade_software(hl_ButtonEventArgs args) {
     }
 }
 
-void MarketplaceApp::_downgrade_software(hl_ButtonEventArgs args) {
+void MarketplaceApp::_downgrade_software(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) { return; }
     if (m_selectedApp == nullptr) { return; }
     GAME_LOG("Downgraded " + m_selectedApp->GetName() + " to level " + std::to_string(m_selectedApp->GetUpgradeLevel()-1));

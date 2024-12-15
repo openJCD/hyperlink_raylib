@@ -36,7 +36,7 @@ protected:
     int m_upgradeCost3 = 150;
     bool m_isRunning = false;
     bool m_isPurchased = false;
-    void _null_callback(hl_ButtonEventArgs args) {}
+    void _null_callback(hl_ClickEventArgs args) {}
 public:
     virtual ~OsProgram() = default;
     OsProgram(CcOS& gameState, const char* name, float minMemoryRequired, const char* description = "CcOS Program Executable", int baseCost = 0)
