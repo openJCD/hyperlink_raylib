@@ -3,7 +3,7 @@
 //
 #pragma once
 #include <raylib.h>
-
+#include <functional>
 #define TRANSPARENT Color (0, 0, 0, 0)
 #define BG_DARK_YELLOW Color (23, 19, 19, 225)
 #define FG_HIGHLIGHT_YELLOW Color (255, 173, 51, 255)
@@ -96,3 +96,8 @@ public:
         return msg.c_str();
     }
 };
+
+inline void _null_callback(hl_ClickEventArgs args) {
+    // do nothing.
+}
+inline static std::function f_null_callback = _null_callback;

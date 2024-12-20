@@ -14,6 +14,7 @@ using std::string;
 static map<string, Font> res_Fonts = map<string, Font>();
 static map<string, Shader> res_Shaders = map<string, Shader>();
 static map<string, hl_StyleProperties> res_StylePresets = map<string, hl_StyleProperties>();
+static map<string, Model> res_Models = map<string, Model>();
 /// static class that has ownership over large resources, like fonts, etc.
 class ResourceManager {
 private:
@@ -29,6 +30,10 @@ public:
     static void SetDefaultStyle(hl_StyleProperties style);
     static hl_StyleProperties GetDefaultStyle();
     static hl_StyleProperties GetStyle(const char* name);
+
+    // models
+    static void AddModel(const char* name, Model model);
+    static Model* GetModel(const char *name);
 };
 
 #endif //RESOURCEMANAGER_H

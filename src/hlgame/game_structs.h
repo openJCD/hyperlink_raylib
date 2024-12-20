@@ -47,4 +47,15 @@ enum hl_NetworkNodeType {
 	NET_NODE_DEVICE_SERVER,
 	NET_NODE_DEVICE_PHONE
 };
+
+class invalid_network_node_exception : public std::exception {
+public:
+	string m_msg;
+	invalid_network_node_exception(string msg) {
+		m_msg = msg;
+	}
+	const char* what()  {
+
+	}
+};
 #endif

@@ -133,7 +133,7 @@ public:
 
     Control* Deactivate();
     Control* Activate();
-
+    Control* SetFloating();
     Control* SetTooltip(const char* tip);
     Control* SetTag(const char* tag);
 

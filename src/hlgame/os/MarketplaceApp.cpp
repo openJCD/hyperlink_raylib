@@ -8,7 +8,7 @@ MarketplaceApp::~MarketplaceApp() = default;
 void MarketplaceApp::_purchase_software(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) {return;}
     if (m_selectedApp == nullptr) {return;}
-    if (m_selectedApp->IsPurchased()) {
+    if (m_selectedApp->IsOwned()) {
         GAME_LOG("Sold " + m_selectedApp->GetName());
 
         m_selectedApp->SetPurchased(false);
@@ -26,7 +26,7 @@ void MarketplaceApp::_upgrade_software(hl_ClickEventArgs args) {
     if (args.mask != MOUSE_MASK_UP) { return; }
     if (m_selectedApp == nullptr) { return; }
     GAME_LOG("Upgraded " + m_selectedApp->GetName() + " to level " + std::to_string(m_selectedApp->GetUpgradeLevel()+1));
-    if (m_selectedApp->IsPurchased()) {
+    if (m_selectedApp->IsOwned()) {
         m_selectedApp->Upgrade();
         if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_3) {
             GAME_LOG("At max upgrade level.");
@@ -51,7 +51,7 @@ void MarketplaceApp::_select_app(Control* item) {
         if (m_selectedApp == nullptr) {
             return;
         } else {
-            if (m_selectedApp->IsPurchased()) {
+            if (m_selectedApp->IsOwned()) {
                 btn_BuySell->SetText("Sell")->Activate();
 
             } else {
@@ -72,11 +72,15 @@ void MarketplaceApp::CreateWindow(shared_ptr<GuiScene> gui) {
     CREATE_LIST_ITEM_MEMBER_CALLBACK(_select_app, f_select_app);
     gui->Begin();
         gui->BeginControl<WindowControl>("Marketplace", 300,250);
-        gui->BeginControl<ListBox>(300,190);
-        for (const auto& [name, app]: m_purchasableApps) {
-            gui->CreateControl<TextLabel>((app->GetName() + " v" + to_string(app->GetUpgradeLevel()+1)).c_str() )->SetTag(name.c_str())->SetPadding(0,0)->FillParentWidth();
-        }
-        gui->EndControl<ListBox>()->OnItemSelected(f_select_app)->SetPadding(0,0);
+            // gui->BeginControl<ListBox>(300,190);
+            // for (const auto& [name, app]: m_purchasableApps) {
+            //     gui->CreateControl<TextLabel>((app->GetName() + " v" + to_string(app->GetUpgradeLevel()+1)).c_str())
+            //         ->SetTag(name.c_str())
+            //         ->SetPadding(0,0)
+            //         ->FillParentWidth()
+            //         ->SetBorderColor(TRANSPARENT);
+            // }
+            // gui->EndControl<ListBox>()->OnItemSelected(f_select_app)->SetPadding(0,0);
         gui->BeginControl<Control>(300,40);
             btn_BuySell   = gui->CreateControl<Button>("Buy", f_purchase_software);
             btn_BuySell->Deactivate();
@@ -84,8 +88,9 @@ void MarketplaceApp::CreateWindow(shared_ptr<GuiScene> gui) {
             btn_Upgrade->Deactivate();
             btn_Downgrade = gui->CreateControl<Button>("Downgrade", f_downgrade_software);
             btn_Downgrade->Deactivate();
-            gui->EndControl<Control>()->SetLayoutDirection(GUI_LAYOUT_HORIZONTAL)->SetBackgroundColor(TRANSPARENT)->SetPadding(0,0);
+        gui->EndControl<Control>()->SetLayoutDirection(GUI_LAYOUT_HORIZONTAL)->SetBackgroundColor(TRANSPARENT)->SetPadding(0,0);
         m_GuiWindow = gui->EndControl<WindowControl>();
+        m_GuiWindow->EnableCloseButton()->Disable();
     gui->End();
 }
 
@@ -104,7 +109,7 @@ void MarketplaceApp::OnUpdate() {
         if (m_selectedApp->GetUpgradeLevel() == PROGRAM_LEVEL_3) {
             btn_Upgrade->Deactivate();
         }
-        if (!m_selectedApp->IsPurchased()) {
+        if (!m_selectedApp->IsOwned()) {
             btn_Upgrade->Deactivate();
             btn_Downgrade->Deactivate();
         }

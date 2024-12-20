@@ -6,6 +6,8 @@
 
 #include <io.h>
 
+#include "../../hlgui/Orbital3DBackgroundControl.h"
+
 void TerminalApp::_receive_command(TextInput &sender) {
     // change this code later to instruct the OS to execute commands rather than just sending a debug message
     SendMessage("Got command: " + sender.GetText());
@@ -42,19 +44,11 @@ void TerminalApp::CreateWindow(shared_ptr<GuiScene> gui) {
     CREATE_BUTTON_MEMBER_CALLBACK(_close_context_menu, f_close_context_menu);
     gui->Begin();
         gui->BeginControl<WindowControl>("Terminal", 300, 350);
+            gui->CreateControl<Orbital3DBackgroundControl>(ResourceManager::GetModel("pc"))->SetFloating()->FillParentWidth()->FillParentHeight()->SetPadding(0,0);
             m_textLog = gui->CreateControl<LargeTextBox>(300, 300,m_textData);
                 m_textLog->SetClickAction(f_open_context_menu)->FillParentWidth();
             gui->CreateControl<TextInput>(300, 300)->SetOnReturnCallback(f_receive_command)->FillParentWidth();
         m_GuiWindow = gui->EndControl<WindowControl>();
-        gui->BeginControl<Control>(100,80);
-            gui->CreateControl<TextLabel>("Context Menu");
-            gui->CreateControl<Button>("Close", f_close_context_menu);
-        m_contextMenu = gui->EndControl<Control>();
     gui->End();
-    m_contextMenu->Disable();
     m_GuiWindow->Disable();
-}
-
-void TerminalApp::OnStartup() {
-    OsProgram::OnStartup();
 }

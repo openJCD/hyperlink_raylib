@@ -22,23 +22,21 @@ using std::list, std::stack, std::make_shared;
 
 class GuiScene {
 private:
-
     // stack of shared pointers to controls
     stack<shared_ptr<Control>> controlStack;
 
     // stack of child counts for controls
     stack<int> controlChildCountStack;
 
-
     // owned list of control objects
     list<Control> controlStorageList;
-    // owned list of buttons
-    list<Button> buttonStorageList;
+
     // shared pointer to the root control of the interface
     shared_ptr<Control> rootControlPtr;
 
     // helper function for incrementing topmost child counter
     void _gui_incrememtCurrentChildCount();
+
     // helper function to take <count> items from the control stack and return a reversed copy of that section.
     stack<shared_ptr<Control>> _gui_reverseSomeOfStackUntil(int count);
 public:
@@ -92,6 +90,7 @@ public:
 
         list<shared_ptr<Control>> ptrsToAdd;
 
+        // stack must be reversed up until the end of my nested children, as otherwise they are ordered and layed out wrong.
         stack<shared_ptr<Control>> controlStackReversed = _gui_reverseSomeOfStackUntil(controlChildCountStack.top());
         controlChildCountStack.pop();
 

@@ -4,10 +4,11 @@
 
 #ifndef MARKETPLACEAPP_H
 #define MARKETPLACEAPP_H
+#include "OsGuiProgram.h"
 #include "OsProgram.h"
 #include "../game_structs.h"
 
-class MarketplaceApp : public OsProgram {
+class MarketplaceApp : public OsGuiProgram {
 private:
     map<string, shared_ptr<OsProgram>> m_purchasableApps;
     OsProgram* m_selectedApp = nullptr;
@@ -15,8 +16,9 @@ private:
     shared_ptr<Button> btn_Upgrade = nullptr;
     shared_ptr<Button> btn_Downgrade = nullptr;
 public:
-    MarketplaceApp(CcOS& gameState, const char *name, float minMemoryRequired)
-        : OsProgram(gameState, name, minMemoryRequired) {
+    MarketplaceApp(CcOS& gameState) : OsGuiProgram(gameState) {
+        m_name = "//marketplace";
+        m_description = "Black-market hacking software can be purchased and upgraded here.";
     }
 
     ~MarketplaceApp() override;

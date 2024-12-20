@@ -12,24 +12,12 @@ using std::move;
 
 /// Open this program's GUI window
 void OsProgram::OnStartup() {
-    if (m_GuiWindow!=nullptr) {
-        m_GuiWindow->Enable();
-        m_GuiWindow->Activate();
-    } else {
-        GAME_LOG("Failed to open gui window for " + m_name + ". \nMake sure you set 'm_GuiWindow' to be your WindowControl in the CreateWindow function.");
-    }
+
 }
 void OsProgram::OnShutdown() { }
-void OsProgram::OnUpdate() { }
-void OsProgram::CreateWindow(shared_ptr<GuiScene> gui) {
-    CREATE_BUTTON_MEMBER_CALLBACK(_null_callback, f_null)
-    gui->CreateControl<Button>("Hello World",f_null);
-}
 
-void OsProgram::DestroyWindow(shared_ptr<Control> guiRoot) {
-    guiRoot->Remove(m_GuiWindow);
-    delete m_GuiWindow.get();
-}
+void OsProgram::OnUpdate() { }
+
 
 /// returns the base cost at LEVEL_BASE, and the incremental increases after that.
 float OsProgram::GetCostAt(hl_ProgramUpgradeLevel upgradeLevel) const {

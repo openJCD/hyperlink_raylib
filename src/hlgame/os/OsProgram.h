@@ -24,7 +24,6 @@ protected:
     string m_name = "CcOS Program";
     string m_description = "A software package for CloudConnectOS";
     hl_ProgramUpgradeLevel m_upgradeLevel = PROGRAM_LEVEL_BASE;
-    shared_ptr<WindowControl> m_GuiWindow;
 
     CcOS& m_CcOsState;
 
@@ -35,7 +34,7 @@ protected:
     int m_upgradeCost2 = 100;
     int m_upgradeCost3 = 150;
     bool m_isRunning = false;
-    bool m_isPurchased = false;
+    bool m_isOwned = false;
     void _null_callback(hl_ClickEventArgs args) {}
 public:
     virtual ~OsProgram() = default;
@@ -47,12 +46,10 @@ public:
     virtual void OnStartup();
     virtual void OnUpdate();
     virtual void OnShutdown();
-    virtual void CreateWindow(shared_ptr<GuiScene> gui);
-    void         DestroyWindow(shared_ptr<Control> guiRoot);
 
-    [[nodiscard]] string GetName() { return m_name; }
-    [[nodiscard]] string GetDescription() { return m_description; }
-    [[nodiscard]] bool IsPurchased() const { return m_isPurchased; }
+    [[nodiscard]] string GetName()          { return m_name; }
+    [[nodiscard]] string GetDescription()   { return m_description; }
+    [[nodiscard]] bool IsOwned() const      { return m_isOwned; }
     [[nodiscard]] float GetCostAt(hl_ProgramUpgradeLevel upgradeLevel) const;
     [[nodiscard]] hl_ProgramUpgradeLevel GetUpgradeLevel() const { return m_upgradeLevel; }
 
@@ -76,7 +73,7 @@ public:
         }
     }
 
-    void SetPurchased(bool state) { m_isPurchased = state; }
+    void SetPurchased(bool state) { m_isOwned = state; }
 };
 
 #endif //OSPROGRAM_H

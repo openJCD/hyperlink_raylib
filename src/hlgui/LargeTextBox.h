@@ -29,6 +29,7 @@ public:
         : m_text(text) { }
     LargeTextBox* SetText(string text) {
         m_text = text;
+        Redraw=true;
         return this;
     }
 };

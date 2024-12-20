@@ -44,6 +44,18 @@ hl_StyleProperties ResourceManager::GetStyle(const char *name) {
     return res_StylePresets[name];
 }
 
+void ResourceManager::AddModel(const char *name, Model model) {
+    res_Models[name] = model;
+}
+
+Model * ResourceManager::GetModel(const char *name) {
+    if (res_Models.contains(name)) {
+        return &res_Models[name];
+    } else {
+        throw null_gui_exception("Model not found");
+    }
+}
+
 void ResourceManager::AddFont(const char *name, Font font) {
     res_Fonts[name] = font;
     SetTextureFilter(res_Fonts[name].texture, TEXTURE_FILTER_TRILINEAR);

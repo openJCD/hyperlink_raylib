@@ -7,6 +7,7 @@
 #include <ostream>
 #include <ranges>
 #include <bits/ranges_algo.h>
+#include <external/glad.h>
 
 using std::list, std::shared_ptr, std::to_string, std::make_shared;
 Control::Control(short w, short h) {
@@ -79,8 +80,8 @@ RenderTexture2D Control::BaseDraw() {
         BeginTextureMode(m_renderTexture);
         BeginBlendMode(RL_BLEND_ALPHA_PREMULTIPLY); //premultiplied alpha is required for nice font rendering.
         DrawTextureRec(childTex.texture,
-    Rectangle( 0, 0, (float)childTex.texture.width, -(float)childTex.texture.height),
-    Vector2(element->m_LocalPosition.x,element->m_LocalPosition.y),
+    Rectangle( 0, 0, (float)element->GetBounds().width, -(float)element->GetBounds().height),
+    Vector2(element->m_LocalPosition.x, element->m_LocalPosition.y),
         WHITE);
         EndBlendMode();
         EndTextureMode();
@@ -161,11 +162,6 @@ void Control::BaseUpdate(float gameTime) {
 bool Control::CheckMouse(Vector2 mousePos) {
     if (!IsEnabled || !IsActive) return false;
     if (CheckCollisionPointRec(mousePos, m_Bounds)) {
-        if (CheckCollisionPointRec(mousePos, m_DragBounds)) {
-            IsHovered=true;
-            Redraw = true;
-            return true;
-        }
         if (m_Children.empty()) {
             IsHovered = true;
         } else {
@@ -178,6 +174,11 @@ bool Control::CheckMouse(Vector2 mousePos) {
                     control->CheckMouse(mousePos);
                     IsHovered = false;
                     Redraw=true;
+                    if (CheckCollisionPointRec(mousePos, m_DragBounds)) {
+                        IsHovered=true;
+                        Redraw = true;
+                        return true;
+                    }
                     return false;
                 }
                 IsHovered = true;
@@ -438,6 +439,12 @@ Control* Control::Activate() {
     Redraw=true;
     return this;
 }
+
+Control * Control::SetFloating() {
+    IsFloating = true;
+    return this;
+}
+
 void Control::Layout() {
     hl_LayoutState layout {0,0, m_layoutType};
 
@@ -445,21 +452,29 @@ void Control::Layout() {
     for (auto &control: m_Children) {
         childrenByAnchor[(int)control->GetAnchor()].emplace_back(control); // sort each child by anchor.
     }
-
+    shared_ptr<Control> last_child = nullptr;
     for (auto &child_auto: childrenByAnchor[9]) {
         if (child_auto->IsFloating) continue;
+        if (!child_auto->IsEnabled) continue;
+        GUI_LOG("Calculating layout for " + child_auto->GetDebugString() + " @ " + std::to_string(layout.cursor_position.x) + ", " + std::to_string(layout.cursor_position.y));
         if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
             layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
             layout.cursor_position.y  = child_auto->m_StyleProperties.padding.y;
         } else {
-            layout.cursor_position.x = child_auto->m_StyleProperties.padding.x;
             layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
+            layout.cursor_position.x  = child_auto->m_StyleProperties.padding.x;
         }
         child_auto->m_LocalPosition = layout.cursor_position;
         if (layout.layout_type == GUI_LAYOUT_HORIZONTAL) {
             layout.cursor_position.x += child_auto->m_Bounds.width;
+            if (childrenByAnchor[9].back() == child_auto) {
+                layout.cursor_position.x += child_auto->m_StyleProperties.padding.x;
+            }
         } else {
             layout.cursor_position.y += child_auto->m_Bounds.height;
+            if (childrenByAnchor[9].back() == child_auto) {
+                layout.cursor_position.y += child_auto->m_StyleProperties.padding.y;
+            }
         }
     }
     m_Bounds.width = std::ranges::max(layout.cursor_position.x, m_Bounds.width);
@@ -467,6 +482,20 @@ void Control::Layout() {
 }
 
 void Control::BaseLayout() {
+
+    auto GetInnerCollisions = [this] (Control* control) {
+        for (auto child: m_Children) {
+            if (CheckCollisionRecs(child->GetBounds(), control->GetBounds())) {
+                if (child->IsFloating)    {continue;}
+                if (!child->IsEnabled)    {continue;}
+                if (child.get()==control) {continue;}
+                return child.get();
+            }
+        }
+        // otherwise
+        return control;
+    };
+
     if (m_Parent != nullptr) {
         switch (m_Anchor) {
             case ANCHOR_TOP_LEFT:
@@ -495,7 +524,7 @@ void Control::BaseLayout() {
                 break;
             case ANCHOR_BOTTOM_LEFT:
                 m_LocalPosition.x = (m_StyleProperties.padding.x);
-                m_LocalPosition.y = (m_Parent->m_Bounds.height - m_StyleProperties.padding.y);
+                m_LocalPosition.y = (m_Parent->m_Bounds.height - m_StyleProperties.padding.y - m_Bounds.height);
                 break;
             case ANCHOR_BOTTOM:
                 m_LocalPosition.x = (m_Parent->m_Bounds.width/2 - m_Bounds.width/2);
@@ -515,15 +544,24 @@ void Control::BaseLayout() {
             m_LocalPosition.y = m_StyleProperties.padding.y;
             m_Bounds.height = m_Parent->m_Bounds.height - m_LocalPosition.y*2;
             // change this in future to be "fill as much space as possible" rather than "fill all the space".
+            // auto collision = GetInnerCollisions(this);
+            // if (collision != nullptr) {
+            //     m_Bounds.height -= collision->m_Bounds.height-collision->m_LocalPosition.y;
+            // }
         }
         if (m_StyleProperties.fill_parent_w) {
             m_LocalPosition.x = m_StyleProperties.padding.x;
             m_Bounds.width = m_Parent->m_Bounds.width - m_LocalPosition.x*2;
+            // auto collision = GetInnerCollisions(this);
+            // if (collision != this) {
+            //     m_Bounds.width -= collision->m_Bounds.width-collision->m_LocalPosition.x;
+            // }
         }
     }
     // load render texture again with updated width/height values.
     if (m_renderTexture.texture.width != (int)m_Bounds.width || m_renderTexture.texture.height != (int)m_Bounds.height) {
-        UnloadRenderTexture(m_renderTexture);
+        if (m_renderTexture.id < 10000 && m_renderTexture.id > 0 )
+            UnloadRenderTexture(m_renderTexture);
         m_renderTexture = LoadRenderTexture((int)m_Bounds.width, (int)m_Bounds.height);
     }
     Redraw = true;

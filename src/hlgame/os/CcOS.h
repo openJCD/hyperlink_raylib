@@ -6,6 +6,8 @@
 #define HLOS_H
 #include <list>
 #include <memory>
+
+#include "OsGuiProgram.h"
 #include "process.h"
 #include "../../hlgui/GuiScene.h"
 #include "OsProgram.h"
@@ -18,7 +20,7 @@ using std::shared_ptr, std::list;
 class CcOS {
 
     // -----Programs---- //
-    map<string, shared_ptr<OsProgram>> m_ValidPrograms;
+    map<string, shared_ptr<OsProgram>> m_allPrograms;
     list<shared_ptr<OsProgram>> m_RunningPrograms;
 
     shared_ptr<TerminalApp> m_TerminalProgram = nullptr;
@@ -48,7 +50,13 @@ public:
     shared_ptr<Control> GetRootGuiControl();
     shared_ptr<GuiScene> GetGuiScene();
     void RegisterProgram(shared_ptr<OsProgram> program);
-    void LaunchProgram(shared_ptr<OsProgram> program);
+
+    void RegisterGuiProgram(shared_ptr<OsGuiProgram> program);
+
+    void LaunchProgram  (shared_ptr<OsProgram> program);
+
+    void RunCommand(const char *cmd);
+
     void DeductPlayerCreditBalance(float amt) { player_CreditBalance-=amt; }
     void IncreasePlayerCreditBalance(float amt) { player_CreditBalance+=amt; }
     void TerminalLog(string msg);

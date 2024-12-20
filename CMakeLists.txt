@@ -77,6 +77,12 @@ add_executable(${PROJECT_NAME} main.cpp
         src/hlgui/ScrollPanel.cpp
         src/hlgui/ScrollPanel.h
         src/program.h
+        src/hlgame/os/OsGuiProgram.cpp
+        src/hlgame/os/OsGuiProgram.h
+        src/hlgui/Orbital3DBackgroundControl.cpp
+        src/hlgui/Orbital3DBackgroundControl.h
+        src/hlgame/NodeFileSystem.cpp
+        src/hlgame/NodeFileSystem.h
 )
 # copy resources directory to build directory
 add_custom_command(
